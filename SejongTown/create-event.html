@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event - SejongTown</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>SejongTown</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Events</a></li>
+                <li><a href="my-events.html" class="auth-required">My Events</a></li>
+                <li><a href="create-event.html" class="active auth-required">Create Event</a></li>
+                <li><a href="profile.html" class="auth-required">Profile</a></li>
+                <!-- Add login/logout button -->
+                <li id="authButtonContainer"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div class="form-container">
+            <h2>Create New Event</h2>
+            <form class="event-form" id="createEventForm">
+                <!-- Added event poster upload field -->
+                <div class="form-group">
+                    <label for="eventPoster">Event Poster <span style="color: var(--primary)">*</span></label>
+                    <div class="poster-upload">
+                        <input type="file" id="eventPoster" accept="image/*" required>
+                        <div class="poster-preview" id="posterPreview" style="display: none;">
+                            <img id="posterImage" alt="Event poster preview">
+                            <button type="button" class="btn-remove-poster" id="removePoster">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" required placeholder="Enter event name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" required placeholder="Building, Room Number">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventCategory">Category</label>
+                    <select id="eventCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Social">Social</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Cultural">Cultural</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventCapacity">Capacity</label>
+                    <input type="number" id="eventCapacity" required min="1" placeholder="Maximum attendees">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" rows="5" required placeholder="Tell students about your event..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="index.html" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div class="notification-toast" id="notificationToast"></div>
+
+    <script src="create-event.js"></script>
+</body>
+</html>

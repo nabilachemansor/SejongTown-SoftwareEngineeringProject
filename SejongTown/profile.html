@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SejongTown</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>SejongTown</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Events</a></li>
+                <li><a href="my-events.html">My Events</a></li>
+                <li><a href="create-event.html">Create Event</a></li>
+                <li><a href="profile.html" class="active">Profile</a></li>
+                <!-- Added auth button container -->
+                <li id="authButtonContainer"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div class="profile-container">
+            <aside class="profile-sidebar">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h3 id="profileName">Student Name</h3>
+                    <p id="profileEmail">student@sejong.ac.kr</p>
+                </div>
+                <nav class="profile-menu">
+                    <button class="menu-item active" data-section="personal">Personal Info</button>
+                    <button class="menu-item" data-section="interests">Interests</button>
+                </nav>
+            </aside>
+
+            <div class="profile-content">
+                <div class="content-section active" id="personal">
+                    <h2>Personal Information</h2>
+                    <form class="profile-form">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" value="Student Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="student@sejong.ac.kr">
+                        </div>
+                        <div class="form-group">
+                            <label for="studentId">Student ID</label>
+                            <input type="text" id="studentId" value="20230001">
+                        </div>
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" value="Computer Science">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="content-section" id="interests">
+                    <h2>Interests</h2>
+                    <p>Select your interests to get personalized event recommendations</p>
+                    <div class="interests-grid">
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Academic">
+                            <span>Academic</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Social">
+                            <span>Social</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Sports">
+                            <span>Sports</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Cultural">
+                            <span>Cultural</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Technology">
+                            <span>Technology</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Arts">
+                            <span>Arts</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Music">
+                            <span>Music</span>
+                        </label>
+                        <label class="interest-tag">
+                            <input type="checkbox" value="Food">
+                            <span>Food</span>
+                        </label>
+                    </div>
+                    <button class="btn btn-primary">Save Interests</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Added auth modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authModalTitle">Login to SejongTown</h2>
+                <button class="modal-close" id="authModalClose" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <div class="form-group">
+                        <!-- Changed from Email to Student ID -->
+                        <label for="authStudentId">Student ID</label>
+                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+                    <div class="form-group" id="authNameGroup" style="display: none;">
+                        <label for="authName">Full Name</label>
+                        <input type="text" id="authName" placeholder="Enter your full name">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
+                </form>
+                <div class="auth-switch">
+                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-toast" id="notificationToast"></div>
+
+    <script src="profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - SejongTown</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>SejongTown</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Events</a></li>
+                <li><a href="my-events.html" class="auth-required">My Events</a></li>
+                <li><a href="create-event.html" class="auth-required">Create Event</a></li>
+                <li><a href="profile.html" class="auth-required">Profile</a></li>
+                <!-- Add login/logout button -->
+                <li id="authButtonContainer"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <a href="index.html" class="back-link">← Back to Events</a>
+        
+        <div class="event-detail-container" id="eventDetailContainer">
+            <div class="event-detail-header">
+                <div class="event-badge" id="eventBadge"></div>
+                <h1 id="eventTitle"></h1>
+                <div class="event-meta">
+                    <span id="eventDate"></span>
+                    <span id="eventTime"></span>
+                    <span id="eventLocation"></span>
+                </div>
+            </div>
+
+            <div class="event-detail-content">
+                <div class="event-detail-main">
+                    <section>
+                        <h3>About This Event</h3>
+                        <p id="eventDescription"></p>
+                    </section>
+
+                    <section>
+                        <h3>Event Details</h3>
+                        <div class="detail-list">
+                            <div class="detail-item">
+                                <strong>Organizer:</strong>
+                                <span id="eventOrganizer"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Capacity:</strong>
+                                <span id="eventCapacity"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Registration:</strong>
+                                <span id="eventRegistration"></span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="event-detail-sidebar">
+                    <div class="rsvp-card">
+                        <h3>RSVP</h3>
+                        <p class="spots-left" id="spotsLeft"></p>
+                        <button class="btn btn-primary btn-block" id="rsvpBtn">Register for Event</button>
+                        <div class="checkin-section" id="checkinSection" style="display: none;">
+                            <hr>
+                            <h4>Check-in</h4>
+                            <div class="qr-code" id="qrCode">
+                                <svg viewBox="0 0 100 100" width="150" height="150">
+                                    <rect width="100" height="100" fill="white"/>
+                                    <rect x="10" y="10" width="30" height="30" fill="black"/>
+                                    <rect x="60" y="10" width="30" height="30" fill="black"/>
+                                    <rect x="10" y="60" width="30" height="30" fill="black"/>
+                                    <rect x="15" y="15" width="20" height="20" fill="white"/>
+                                    <rect x="65" y="15" width="20" height="20" fill="white"/>
+                                    <rect x="15" y="65" width="20" height="20" fill="white"/>
+                                    <rect x="50" y="50" width="10" height="10" fill="black"/>
+                                    <rect x="70" y="70" width="10" height="10" fill="black"/>
+                                </svg>
+                            </div>
+                            <p class="qr-instructions">Show this QR code at the event entrance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add login/signup modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authModalTitle">Login to SejongTown</h2>
+                <button class="modal-close" id="authModalClose" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <div class="form-group">
+                        <!-- Changed from Email to Student ID -->
+                        <label for="authStudentId">Student ID</label>
+                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+                    <div class="form-group" id="authNameGroup" style="display: none;">
+                        <label for="authName">Full Name</label>
+                        <input type="text" id="authName" placeholder="Enter your full name">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
+                </form>
+                <div class="auth-switch">
+                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-toast" id="notificationToast"></div>
+
+    <script src="event-details.js"></script>
+</body>
+</html>

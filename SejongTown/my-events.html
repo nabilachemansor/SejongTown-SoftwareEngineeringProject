@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Events - SejongTown</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>SejongTown</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Events</a></li>
+                <li><a href="my-events.html" class="active auth-required">My Events</a></li>
+                <li><a href="create-event.html" class="auth-required">Create Event</a></li>
+                <!-- Profile link now dynamically rendered -->
+                <li id="profileLinkContainer"></li>
+                <!-- Changed to match other pages with dynamic container -->
+                <li id="authButtonContainer"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <div class="page-header">
+            <h2>My Events</h2>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-type="registered">Registered Events</button>
+            <button class="filter-tab" data-type="created">Created Events</button>
+            <button class="filter-tab" data-type="past">Past Events</button>
+        </div>
+
+        <div class="events-grid" id="myEventsGrid"></div>
+    </main>
+
+    <!-- Updated auth modal to match other pages structure -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authModalTitle">Login to SejongTown</h2>
+                <button class="modal-close" id="authModalClose" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <div class="form-group">
+                        <!-- Changed from Email to Student ID -->
+                        <label for="authStudentId">Student ID</label>
+                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+                    <div class="form-group" id="authNameGroup" style="display: none;">
+                        <label for="authName">Full Name</label>
+                        <input type="text" id="authName" placeholder="Enter your full name">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
+                </form>
+                <div class="auth-switch">
+                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification-toast" id="notificationToast"></div>
+
+    <script src="my-events.js"></script>
+</body>
+</html>
