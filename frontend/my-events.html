@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Events - SejongTown</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
@@ -48,18 +48,30 @@
             <div class="modal-body">
                 <form id="authForm">
                     <div class="form-group">
-                        <!-- Changed from Email to Student ID -->
                         <label for="authStudentId">Student ID</label>
-                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                        <input type="text" id="authStudentId" required placeholder="8-digit User ID" pattern="[0-9]{8}" maxlength="8">
                     </div>
-                    <div class="form-group">
-                        <label for="authPassword">Password</label>
-                        <input type="password" id="authPassword" required placeholder="Enter your password">
-                    </div>
+
                     <div class="form-group" id="authNameGroup" style="display: none;">
                         <label for="authName">Full Name</label>
                         <input type="text" id="authName" placeholder="Enter your full name">
                     </div>
+                    
+                    <div class="form-group" id="authEmailGroup" style="display: none;">
+                        <label for="authEmail">Email</label>
+                        <input type="email" id="authEmail" placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+
+                    <div class="form-group" id="authDepartmentGroup" style="display: none;">
+                        <label for="authEmail">Department</label>
+                        <input type="text" id="authDepartment" placeholder="Enter your department">
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
                 </form>
                 <div class="auth-switch">
@@ -71,6 +83,6 @@
 
     <div class="notification-toast" id="notificationToast"></div>
 
-    <script src="my-events.js"></script>
+    <script src="js/my-events.js"></script>
 </body>
 </html>
