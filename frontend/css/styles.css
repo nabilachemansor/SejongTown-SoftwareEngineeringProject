@@ -252,6 +252,64 @@ body {
   color: var(--primary);
 }
 
+.event-detail-poster {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 35px;
+  cursor: pointer;           /* indicates clickable */
+}
+
+.event-detail-poster img {
+  width: auto;            
+  max-width: 90%;        
+  height: 550px;          
+  object-fit: cover;         /* crop if needed to fit */
+  border-radius: 12px;     
+  transition: transform 0.3s, box-shadow 0.3s; 
+}
+
+.event-detail-poster img:hover {
+  transform: scale(1.03);                   /* gentle zoom */
+  box-shadow: 0 12px 30px rgba(199, 199, 199, 0.4);
+}
+
+/* Click to view full image of poster */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-modal .modal-content {
+  position: relative;
+  max-width: 80%;
+  max-height: 80%;
+}
+
+.image-modal img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.image-modal .close {
+  position: absolute;
+  top: 10px;
+  right: 25px;
+  font-size: 3rem;
+  color: white;
+  cursor: pointer;
+  -webkit-text-stroke: 1px black; /* adds black outline */
+}
+
 .event-detail-content {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -279,6 +337,18 @@ body {
   padding: 0.75rem;
   background-color: var(--bg-dark);
   border-radius: 8px;
+}
+
+/* Make description show 3 lines only in event preview */
+.event-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* show only 3 lines */
+  line-clamp: 3;              /* standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5em;         /* adjust if needed */
+  max-height: 7.5em;          /* 3 lines × line-height */
 }
 
 .rsvp-card {
@@ -984,7 +1054,7 @@ body {
 }
 
 /* Added event detail poster styles */
-.event-detail-poster {
+/* .event-detail-poster {
   width: 100%;
   max-height: 400px;
   overflow: hidden;
@@ -996,4 +1066,4 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
+} */
