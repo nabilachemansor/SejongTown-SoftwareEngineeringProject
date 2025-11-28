@@ -7,6 +7,7 @@ import { fileURLToPath } from "url"
 import authRoutes from "./routes/auth.js";
 import eventRoutes from "./routes/events.js";
 import attendanceRoutes from "./routes/attendance.js";
+import interestRoutes from "./routes/interests.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")))
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/user-interest", interestRoutes);
 
 app.get("/", (req, res) => res.send("SejongTown backend running!"));
 

@@ -473,53 +473,79 @@ function setupChatbot() {
       chatbotToggle.style.display = "flex"
     })
   }
-
-  if (chatbotSend && chatbotInput) {
-    const sendMessage = () => {
-      const message = chatbotInput.value.trim()
-      if (message) {
-        addMessage(message, "user")
-        chatbotInput.value = ""
-
-        setTimeout(() => {
-          const response = generateBotResponse(message)
-          addMessage(response, "bot")
-        }, 500)
-      }
-    }
-
-    chatbotSend.addEventListener("click", sendMessage)
-    chatbotInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage()
-    })
+  
+//bila tmbah
+async function queryAI(message) {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null")
+  const payload = {
+    message: message,
+    student_id: currentUser ? currentUser.student_id : null
   }
+  try {
+    const res = await fetch("http://localhost:6000/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    })
+    if (!res.ok) {
+      console.error("AI service error", res.status);
+      return { reply: "Sorry, AI service is unavailable right now." }
+    }
+    return await res.json();
+  } catch (err) {
+    console.error("Network error to AI service", err)
+    return { reply: "Could not reach AI service." }
+  }
+}
 
-  function addMessage(text, sender) {
-    const messageDiv = document.createElement("div")
-    messageDiv.className = `message ${sender}`
-    messageDiv.innerHTML = `<div class="message-content">${text}</div>`
-    chatbotMessages.appendChild(messageDiv)
+function addMessage(text, sender) {
+    const msg = document.createElement("div")
+    msg.className = `message ${sender}`
+    msg.innerHTML = `<div class="message-content">${text}</div>`
+    chatbotMessages.appendChild(msg)
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight
   }
 
-  function generateBotResponse(message) {
-    const lowerMessage = message.toLowerCase()
+// wire to UI Bila tmbah
+if (chatbotSend && chatbotInput) {
+  const sendMessage = async () => {
+    const message = chatbotInput.value.trim()
+    if (!message) return
 
-    if (lowerMessage.includes("event") || lowerMessage.includes("what") || lowerMessage.includes("recommend")) {
-      const upcomingEvents = events.slice(0, 3)
-      return `I recommend these upcoming events: ${upcomingEvents.map((e) => e.title).join(", ")}. Would you like more details about any of them?`
-    } else if (lowerMessage.includes("rsvp") || lowerMessage.includes("register")) {
-      return 'To RSVP for an event, simply click on the event card and press the "Register for Event" button. You can manage all your registrations in the "My Events" section.'
-    } else if (lowerMessage.includes("cancel") || lowerMessage.includes("unregister")) {
-      return 'To cancel your registration, go to "My Events" and click on the event you want to cancel. You\'ll find the cancel option there.'
-    } else if (lowerMessage.includes("create")) {
-      return 'You can create your own event by clicking on "Create Event" in the navigation menu. Fill out the form with event details and it will be reviewed before going live!'
-    } else if (lowerMessage.includes("check-in") || lowerMessage.includes("qr")) {
-      return "After registering for an event, you'll receive a QR code in the event details page. Simply show this code at the event entrance for quick check-in!"
-    } else {
-      return "I can help you find events, RSVP, check-in, and create your own events. What would you like to know more about?"
+    addMessage(message, "user");
+    chatbotInput.value = "";
+
+    addMessage("Thinking...", "bot"); // temporary indicator
+    const response = await queryAI(message)
+    // remove the "Thinking..." (last bot message) if present
+    const botMsgs = document.querySelectorAll("#chatbotMessages .message.bot");
+    if (botMsgs.length) {
+      const last = botMsgs[botMsgs.length - 1]
+      if (last && last.textContent.includes("Thinking")) last.remove()
     }
-  }
+
+    // default response text
+    const replyText = response.reply || "Sorry, I couldn't answer that."
+    addMessage(replyText, "bot");
+
+    // if response.events exists, render quick suggestions 9show rec events)
+ if (Array.isArray(response.events) && response.events.length > 0) {
+        const suggestions = response.events.slice(0, 4).map(e => `
+          <div class="chat-event">
+            <a href="/frontend/event-details.html?id=${e.event_id}">${e.title}</a>
+            <div class="small">${new Date(e.event_date).toISOString().split('T')[0]}</div>
+          </div>
+        `).join("")
+
+        addMessage("Suggested events:<br>" + suggestions, "bot")
+      }
+    }
+
+  chatbotSend.addEventListener("click", sendMessage)
+  chatbotInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage()
+  })
+}
 }
 
 function formatDate(dateString) {
