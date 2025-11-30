@@ -7,12 +7,21 @@ from datetime import datetime, timedelta
 
 def to_local_date(utc_str, tz_offset=9):
     """Convert UTC ISO string to local date with offset in hours (default KST=UTC+9)"""
-    # Remove Z if present
+    """# Remove Z if present
     if utc_str.endswith("Z"):
         utc_str = utc_str[:-1]
     dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
     dt_local = dt_utc + timedelta(hours=tz_offset)
     return dt_local.date()
+    """
+    if not utc_str:
+        return None
+    if utc_str.endswith("Z"):
+        utc_str = utc_str[:-1]
+
+    dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
+    dt_local = dt_utc + timedelta(hours=tz_offset)
+    return dt_local.date()
 
 app = Flask(__name__)
 CORS(app)
@@ -37,7 +46,7 @@ def fetch_user_registered_events(student_id):
     return resp.json()
 
 def fetch_user_interests(student_id):
-    resp = requests.get(f"{BACKEND_BASE}/user-interests/{student_id}")
+    resp = requests.get(f"{BACKEND_BASE}/user-interest/{student_id}")
     if resp.status_code != 200:
         return []
     return resp.json()
@@ -177,6 +186,61 @@ def chat():
             today = datetime.today().date()
             upcoming = [e for e in events if to_local_date(e.get("event_date")) >= today]
             print("Upcoming events:", upcoming)
+            
+            if not upcoming:
+                reply = "There are no upcoming events at the moment."
+                print("Reply:", reply)
+                return jsonify({"reply": reply, "events": []})
+
+            # Personalization
+            user_categories = []
+            if user_id:
+                regs = fetch_user_registered_events(user_id)
+                interests = fetch_user_interests(user_id)
+
+                print("user registered events:", regs)
+                print("user interest from backend:", interests)
+
+                #registered event cat
+                user_categories += [
+                    r.get("category","").lower()
+                    for r in regs
+                    if r.get("category")
+                ]
+                #interest handling
+                for i in interests:
+                    if isinstance(i, dict) and "name" in i:
+                        user_categories.append(i["name"].lower())
+                    elif isinstance(i, str):
+                        user_categories.append(i.lower())
+
+            print("Final user preference categories:", user_categories)
+
+            if user_categories:
+                top = [c for c, _ in Counter(user_categories).most_common(2)]
+                personalized = [
+                    e for e in upcoming
+                    if str(e.get("category", "")).lower() in top
+                    
+                ]
+            else:
+                personalized = []
+
+            final_list = personalized if personalized else upcoming
+
+            titles = ", ".join([
+                f'{e["title"]} ({to_local_date(e["event_date"])})'
+                for e in final_list[:5]
+            ])
+
+            reply = f"I recommend these upcoming events: {titles}"
+            print("Reply:", reply)
+            return jsonify({"reply": reply, "events": final_list[:5]})
+        """
+        if intent == "recommend_events":
+            today = datetime.today().date()
+            upcoming = [e for e in events if to_local_date(e.get("event_date")) >= today]
+            print("Upcoming events:", upcoming)
 
             if not upcoming:
                 reply = "There are no upcoming events at the moment."
@@ -202,6 +266,7 @@ def chat():
             reply = f"I recommend these upcoming events: {titles}"
             print("Reply:", reply)
             return jsonify({"reply": reply, "events": final_list[:5]})
+            """
 
         # --- 6. Help ---
         if intent == "help":
@@ -210,7 +275,10 @@ def chat():
             return jsonify({"reply": reply})
 
         # --- 7. Fallback for unknown queries ---
-        upcoming = events[:5]
+        today = datetime.today().date()
+        upcoming = [
+            e for e in events 
+            if to_local_date(e.get("event_date")) >= today][:5]
         titles = ", ".join([f'{e.get("title")} ({to_local_date(e.get("event_date"))})' for e in upcoming])
         reply = f"Sorry, I didn't understand that. Here are some upcoming events: {titles}"
         print("Reply:", reply)
