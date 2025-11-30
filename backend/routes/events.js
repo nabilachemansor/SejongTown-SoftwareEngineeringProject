@@ -262,5 +262,4 @@ router.delete("/:event_id/register", async (req, res) => {
   }
 });
 
-
 export default router;

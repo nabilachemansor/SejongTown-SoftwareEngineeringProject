@@ -112,6 +112,24 @@ async function createEvent() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"))
   const formData = new FormData(form)
 
+  // Event can only be created from tomorrow onwards
+  const eventDate = formData.get("event_date");
+  if (!eventDate) {
+    alert("Please insert an event date.");
+    return;
+  }
+
+  const selectedDate = new Date(eventDate);
+  const today = new Date();
+  today.setHours(0,0,0,0); // ignore time
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1); // set to tomorrow
+
+  if (selectedDate < tomorrow) {
+    alert("Event date must be from tomorrow onwards.");
+    return;
+  }
+
   formData.append("organizer_id", currentUser.student_id)
   formData.set("capacity", parseInt(formData.get("capacity")) || 0)
   formData.set("slots_left", parseInt(formData.get("capacity")) || 0)

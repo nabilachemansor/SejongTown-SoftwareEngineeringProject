@@ -25,31 +25,31 @@
   "type": "module",
   "homepage": "https://github.com/nabilachemansor/SejongTown-SoftwareEngineeringProject#readme",
   "dependencies": {
-    "@neondatabase/serverless": "1.0.2",
-    "bcryptjs": "^3.0.3",
-    "class-variance-authority": "0.7.1",
-    "clsx": "2.1.1",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "lucide-react": "0.553.0",
     "multer": "^2.0.2",
-    "next": "16.0.3",
-    "node.js": "^0.0.1-security",
     "pg": "^8.16.3",
+    "bcryptjs": "3.0.3",
+    "@neondatabase/serverless": "1.0.2",
+    "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.553.0",
     "tailwind-merge": "3.4.0",
     "tailwindcss-animate": "1.0.7"
   },
   "devDependencies": {
-    "@types/node": "24.10.1",
+    "nodemon": "^3.1.11",
     "@types/react": "19.2.4",
     "@types/react-dom": "19.2.3",
-    "nodemon": "^3.1.11",
-    "postcss": "8.5.6",
+    "@types/node": "24.10.1",
     "tailwindcss": "4.1.17",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "postcss": "8.5.6"
   }
 }

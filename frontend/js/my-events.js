@@ -422,7 +422,7 @@ async function renderMyEvents(type) {
                     </div>
                     <p class="event-description">${event.description}</p>
                     <div class="event-footer">
-                        <span>${event.registered || 0}/${event.capacity} registered</span>
+                        <span>${(event.capacity - event.slots_left) || 0}/${event.capacity} registered</span>
                         ${type === "created" ? "<span>Your Event</span>" : "<span>Registered</span>"}
                     </div>
                 </div>

@@ -482,7 +482,7 @@ async function queryAI(message) {
     student_id: currentUser ? currentUser.student_id : null
   }
   try {
-    const res = await fetch("http://localhost:6000/chat", {
+    const res = await fetch("http://localhost:5050/chat", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(payload)
@@ -530,10 +530,10 @@ if (chatbotSend && chatbotInput) {
 
     // if response.events exists, render quick suggestions 9show rec events)
  if (Array.isArray(response.events) && response.events.length > 0) {
-        const suggestions = response.events.slice(0, 4).map(e => `
+        const suggestions = response.events.slice(0, 9).map(e => `
           <div class="chat-event">
             <a href="/frontend/event-details.html?id=${e.event_id}">${e.title}</a>
-            <div class="small">${new Date(e.event_date).toISOString().split('T')[0]}</div>
+            <div class="small">${new Date(e.event_date).toLocaleDateString('en-CA')}</div>
           </div>
         `).join("")
 

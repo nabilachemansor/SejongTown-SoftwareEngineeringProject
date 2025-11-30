@@ -1,113 +1,117 @@
 from dateutil import parser as dateparser
 from datetime import datetime, timedelta
 import re
-from collections import Counter
+import random
 
+# -------------------------
+# Text normalization
+# -------------------------
 def normalize_text(text: str):
     return text.strip().lower()
 
+# -------------------------
+# Intent detection
+# -------------------------
 def detect_intent(text: str):
-    """
-    Return one of:
-      - 'events_on_date'  (user asks events today / tomorrow / specific date)
-      - 'events_by_category_or_keyword' (e.g., 'computer class this month', 'club events this week')
-      - 'my_registered_events' (what I signed up for / my events)
-      - 'recommend_events' (recommend me events)
-      - 'help' or 'unknown'
-    """
-    t = normalize_text(text)
-    """
-    if any(w in t for w in [
-        "my interest","my interests",
-        "what is my interest",
-        "what am i interested at",
-        "show my interest"
-    ]):
-    
-        return "my_interests"
-        """
 
+    t = normalize_text(text)
+
+    # --- Basic conversational intents ---
+    greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
+    confirmations = ["yes", "yeah", "yup", "sure", "correct"]
+    negations = ["no", "nah", "nope"]
+    gratitude = ["thanks", "thank you", "thx"]
+    smalltalk = ["how are you", "how's it going", "how you doing"]
+
+    if any(g in t for g in greetings):
+        return "greeting"
+    if any(c in t for c in confirmations):
+        return "confirmation"
+    if any(n in t for n in negations):
+        return "negation"
+    if any(g in t for g in gratitude):
+        return "gratitude"
+    if any(s in t for s in smalltalk):
+        return "smalltalk"
+
+    # --- Event-related intents ---
     if any(w in t for w in ["recommend", "suggest", "any events i should"]):
         return "recommend_events"
     if any(w in t for w in ["my events", "what i registered", "registered", "i joined", "i signed up"]):
         return "my_registered_events"
-    # date words
     if any(w in t for w in ["today", "tomorrow", "this week", "this month", "next week", "next month"]):
         return "events_on_date"
-    # month/day tokens or 'month' keyword
     if re.search(r"\b(january|february|march|april|may|june|july|august|september|october|november|december|\d{1,2}/\d{1,2})\b", t):
         return "events_on_date"
-    if any(w in t for w in ["class", "club", "academic", "sports", "technology", "music", "cultural", "food", "social", "workshop"]):
+    if any(w in t for w in ["class", "club", "academic", "sports", "technology", "music", "cultural", "food", "social", "workshop", "arts"]):
         return "events_by_category_or_keyword"
-    #if any(w in t for w in ["recommend", "suggest", "any events i should"]):
-        #return "recommend_events"
+
+    # --- Help / guidance ---
     if any(w in t for w in ["help", "what can you do", "how to"]):
         return "help"
+
+    # --- Fallback ---
     return "unknown"
 
+# -------------------------
+# Date parsing
+# -------------------------
 def parse_date_keyword(text: str):
     t = normalize_text(text)
     today = datetime.now().date()
 
     if "today" in t:
         return today.isoformat(), today.isoformat()
-
     if "tomorrow" in t:
         tomorrow = today + timedelta(days=1)
         return tomorrow.isoformat(), tomorrow.isoformat()
-
     if "this week" in t:
         start = today
-        end = today + timedelta(days=(6 - today.weekday()))
+        end = start + timedelta(days=(6 - today.weekday()))
         return start.isoformat(), end.isoformat()
-
     if "next week" in t:
-        start = today + timedelta(days=7 - today.weekday())
+        start = today + timedelta(days=(7 - today.weekday()))
         end = start + timedelta(days=6)
         return start.isoformat(), end.isoformat()
-
     if "this month" in t:
-        start = today.replace(day=1)
-        if start.month == 12:
-            end = start.replace(year=start.year + 1, month=1, day=1) - timedelta(days=1)
+        start = datetime(today.year, today.month, 1).date()
+        if today.month == 12:
+            end = datetime(today.year + 1, 1, 1).date() - timedelta(days=1)
         else:
-            end = start.replace(month=start.month + 1, day=1) - timedelta(days=1)
+            end = datetime(today.year, today.month + 1, 1).date() - timedelta(days=1)
         return start.isoformat(), end.isoformat()
-
     if "next month" in t:
         if today.month == 12:
-            start = today.replace(year=today.year + 1, month=1, day=1)
+            start = datetime(today.year + 1, 1, 1).date()
+            end = datetime(today.year + 1, 2, 1).date() - timedelta(days=1)
         else:
-            start = today.replace(month=today.month + 1, day=1)
-
-        if start.month == 12:
-            end = start.replace(year=start.year + 1, month=1, day=1) - timedelta(days=1)
-        else:
-            end = start.replace(month=start.month + 1, day=1) - timedelta(days=1)
-
+            start = datetime(today.year, today.month + 1, 1).date()
+            if start.month == 12:
+                end = datetime(start.year + 1, 1, 1).date() - timedelta(days=1)
+            else:
+                end = datetime(start.year, start.month + 1, 1).date() - timedelta(days=1)
         return start.isoformat(), end.isoformat()
 
-    # ✅ MONTH NAME HANDLING (THIS FIXES DECEMBER BUG)
+    # Month name handling
     months = {
         "january": 1, "february": 2, "march": 3, "april": 4,
         "may": 5, "june": 6, "july": 7, "august": 8,
         "september": 9, "october": 10, "november": 11, "december": 12
     }
-
     for name, month_num in months.items():
         if name in t:
             year = today.year
-            start = today.replace(year=year, month=month_num, day=1)
-
+            if month_num < today.month:
+                year += 1
+            start = datetime(year, month_num, 1).date()
             if month_num == 12:
-                end = start.replace(year=year + 1, month=1, day=1) - timedelta(days=1)
+                end = datetime(year + 1, 1, 1).date() - timedelta(days=1)
             else:
-                end = start.replace(month=month_num + 1, day=1) - timedelta(days=1)
-
+                end = datetime(year, month_num + 1, 1).date() - timedelta(days=1)
             return start.isoformat(), end.isoformat()
 
-    # numeric date: 2025-12-01
-    m = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", text)
+    # Numeric date YYYY-MM-DD
+    m = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", t)
     if m:
         try:
             d = dateparser.parse(m.group(1)).date()
@@ -115,32 +119,89 @@ def parse_date_keyword(text: str):
         except:
             pass
 
-    # numeric slash date: 12/01
-    m2 = re.search(r"(\d{1,2}/\d{1,2}(?:/\d{2,4})?)", text)
+    # Numeric slash date MM/DD or MM/DD/YYYY
+    m2 = re.search(r"(\d{1,2}/\d{1,2}(?:/\d{2,4})?)", t)
     if m2:
         try:
             d = dateparser.parse(m2.group(1), dayfirst=False).date()
             return d.isoformat(), d.isoformat()
         except:
             pass
-        
-    return None 
 
+    return None
 
+# -------------------------
+# Category / keyword extraction
+# -------------------------
 def extract_category_or_keyword(text: str):
-    # look for known categories first
     cats = ["academic", "social", "sports", "cultural", "technology", "arts", "music", "food", "workshop", "club", "class"]
     t = normalize_text(text)
-    found = []
-    for c in cats:
-        if c in t:
-            found.append(c)
-    # fallback: extract nouns / keywords using simple regex
+    found = [c for c in cats if c in t]
     if not found:
-        # get words longer than 3 chars
+        # fallback: extract words longer than 3 chars
         candidates = re.findall(r'\b[a-zA-Z]{4,}\b', t)
-        # remove stopwords
         stop = {"what","which","have","there","events","event","this","next","month","week","today","tomorrow","i","can","me"}
         candidates = [w for w in candidates if w not in stop]
         found = candidates[:2]
     return found
+
+# -------------------------
+# Natural bot responses
+# -------------------------
+def get_bot_response(intent: str, text: str = ""):
+    responses = {
+        "greeting": [
+            "Hello! How can I help you today?",
+            "Hi there! Looking for some events?",
+            "Hey! What events are you interested in?"
+        ],
+        "confirmation": [
+            "Got it!",
+            "Great!",
+            "Understood."
+        ],
+        "negation": [
+            "No worries.",
+            "Alright, let me know if you change your mind.",
+            "Okay."
+        ],
+        "gratitude": [
+            "You’re welcome!",
+            "No problem!",
+            "Glad I could help!"
+        ],
+        "smalltalk": [
+            "I’m doing great, thank you! How about you?",
+            "I’m fine! Ready to help you find events.",
+            "All good here! Looking for events today?"
+        ],
+        "recommend_events": [
+            "I can recommend some events for you! What type of events are you interested in?",
+            "Sure, I have some suggestions. Do you prefer club, sports, or academic events?"
+        ],
+        "my_registered_events": [
+            "Let me check your registered events.",
+            "Here are the events you signed up for."
+        ],
+        "events_on_date": [
+            "Looking up events on that date...",
+            "Here are the events happening then."
+        ],
+        "events_by_category_or_keyword": [
+            "Searching for events in that category...",
+            "Here are some events that match your keywords."
+        ],
+        "help": [
+            "I can help you find events, suggest events, or tell you your registered events.",
+            "You can ask me things like 'events today', 'recommend events', or 'my registered events'."
+        ],
+        "unknown": [
+            "I’m sorry, I didn’t understand that. Could you rephrase?",
+            "Hmm, I’m not sure what you mean. Could you ask about events?",
+            "I don’t understand. You can ask me for events or suggestions."
+        ]
+    }
+
+    if intent in responses:
+        return random.choice(responses[intent])
+    return "I’m not sure how to respond to that."
