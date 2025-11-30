@@ -17,7 +17,7 @@ router.get("/:student_id", async (req, res) => {
   const { student_id } = req.params;
 
   try {
-    const result = await db.query(
+    const result = await client.query(
       `SELECT i.interest_id, i.name
        FROM user_interests ui
        JOIN interests i ON ui.interest_id = i.interest_id
