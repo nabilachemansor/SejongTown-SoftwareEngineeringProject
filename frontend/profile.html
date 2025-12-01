@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - SejongTown</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>SejongTown</h1>
+                <!-- Replaced text with logo image -->
+                <a href="index.html">
+                    <img src="image/sejongtown-logo.png" alt="SejongTown" class="logo">
+                </a>
             </div>
             <ul class="nav-menu">
                 <li><a href="index.html">Events</a></li>
@@ -33,8 +36,8 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
-                    <h3 id="profileName">Student Name</h3>
-                    <p id="profileEmail">student@sejong.ac.kr</p>
+                    <h3 id="profileName">"Student Name"</h3>
+                    <p id="profileID">Student ID</p>
                 </div>
                 <nav class="profile-menu">
                     <button class="menu-item active" data-section="personal">Personal Info</button>
@@ -48,19 +51,19 @@
                     <form class="profile-form">
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" value="Student Name">
+                            <input type="text" id="fullName" value="-">
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" id="email" value="student@sejong.ac.kr">
+                            <input type="email" id="email" value="-">
                         </div>
                         <div class="form-group">
                             <label for="studentId">Student ID</label>
-                            <input type="text" id="studentId" value="20230001">
+                            <input type="text" id="studentId" value="-" readonly>
                         </div>
                         <div class="form-group">
                             <label for="department">Department</label>
-                            <input type="text" id="department" value="Computer Science">
+                            <input type="text" id="department" value="-">
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
@@ -119,18 +122,30 @@
             <div class="modal-body">
                 <form id="authForm">
                     <div class="form-group">
-                        <!-- Changed from Email to Student ID -->
                         <label for="authStudentId">Student ID</label>
-                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                        <input type="text" id="authStudentId" required placeholder="8-digit User ID" pattern="[0-9]{8}" maxlength="8">
                     </div>
-                    <div class="form-group">
-                        <label for="authPassword">Password</label>
-                        <input type="password" id="authPassword" required placeholder="Enter your password">
-                    </div>
+
                     <div class="form-group" id="authNameGroup" style="display: none;">
                         <label for="authName">Full Name</label>
                         <input type="text" id="authName" placeholder="Enter your full name">
                     </div>
+                    
+                    <div class="form-group" id="authEmailGroup" style="display: none;">
+                        <label for="authEmail">Email</label>
+                        <input type="email" id="authEmail" placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+
+                    <div class="form-group" id="authDepartmentGroup" style="display: none;">
+                        <label for="authEmail">Department</label>
+                        <input type="text" id="authDepartment" placeholder="Enter your department">
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
                 </form>
                 <div class="auth-switch">
@@ -142,6 +157,6 @@
 
     <div class="notification-toast" id="notificationToast"></div>
 
-    <script src="profile.js"></script>
+    <script src="js/profile.js"></script>
 </body>
 </html>

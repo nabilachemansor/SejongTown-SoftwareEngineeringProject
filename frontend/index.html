@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SejongTown - Campus Event Management</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>SejongTown</h1>
+                <!-- Replaced text with logo image -->
+                <a href="index.html">
+                    <img src="image/sejongtown-logo.png" alt="SejongTown" class="logo">
+                </a>
             </div>
             <ul class="nav-menu">
                 <li><a href="index.html" class="active">Events</a></li>
@@ -36,6 +41,10 @@
             <button class="filter-tab" data-category="Social">Social</button>
             <button class="filter-tab" data-category="Sports">Sports</button>
             <button class="filter-tab" data-category="Cultural">Cultural</button>
+            <button class="filter-tab" data-category="Technology">Technology</button>
+            <button class="filter-tab" data-category="Arts">Arts</button>
+            <button class="filter-tab" data-category="Music">Music</button>
+            <button class="filter-tab" data-category="Food">Food</button>
         </div>
 
         <div class="events-grid" id="eventsGrid"></div>
@@ -78,22 +87,36 @@
             <div class="modal-body">
                 <form id="authForm">
                     <div class="form-group">
-                        <!-- Changed from Email to Student ID -->
                         <label for="authStudentId">Student ID</label>
-                        <input type="text" id="authStudentId" required placeholder="8-digit Student ID" pattern="[0-9]{8}" maxlength="8">
+                        <input type="text" id="authStudentId" required placeholder="8-digit User ID" pattern="[0-9]{8}"
+                            maxlength="8">
                     </div>
-                    <div class="form-group">
-                        <label for="authPassword">Password</label>
-                        <input type="password" id="authPassword" required placeholder="Enter your password">
-                    </div>
+
                     <div class="form-group" id="authNameGroup" style="display: none;">
                         <label for="authName">Full Name</label>
                         <input type="text" id="authName" placeholder="Enter your full name">
                     </div>
+
+                    <div class="form-group" id="authEmailGroup" style="display: none;">
+                        <label for="authEmail">Email</label>
+                        <input type="email" id="authEmail" placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" required placeholder="Enter your password">
+                    </div>
+
+                    <div class="form-group" id="authDepartmentGroup" style="display: none;">
+                        <label for="authEmail">Department</label>
+                        <input type="text" id="authDepartment" placeholder="Enter your department">
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
                 </form>
                 <div class="auth-switch">
-                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button></p>
+                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn"
+                            class="link-btn">Sign up</button></p>
                 </div>
             </div>
         </div>
@@ -101,6 +124,7 @@
 
     <div class="notification-toast" id="notificationToast"></div>
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
+
 </html>

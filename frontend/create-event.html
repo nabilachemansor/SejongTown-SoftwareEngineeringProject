@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Event - SejongTown</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>SejongTown</h1>
+                <!-- Replaced text with logo image -->
+                <a href="index.html">
+                    <img src="image/sejongtown-logo.png" alt="SejongTown" class="logo">
+                </a>
             </div>
             <ul class="nav-menu">
                 <li><a href="index.html">Events</a></li>
@@ -26,12 +29,12 @@
     <main class="container main-content">
         <div class="form-container">
             <h2>Create New Event</h2>
-            <form class="event-form" id="createEventForm">
+            <form class="event-form" id="createEventForm" enctype="multipart/form-data">
                 <!-- Added event poster upload field -->
                 <div class="form-group">
-                    <label for="eventPoster">Event Poster <span style="color: var(--primary)">*</span></label>
+                    <label for="eventPoster">Event Poster</span></label>
                     <div class="poster-upload">
-                        <input type="file" id="eventPoster" accept="image/*" required>
+                        <input type="file" id="eventPoster" accept="image/*" name="poster">
                         <div class="poster-preview" id="posterPreview" style="display: none;">
                             <img id="posterImage" alt="Event poster preview">
                             <button type="button" class="btn-remove-poster" id="removePoster">Remove</button>
@@ -41,49 +44,53 @@
                 
                 <div class="form-group">
                     <label for="eventTitle">Event Title</label>
-                    <input type="text" id="eventTitle" required placeholder="Enter event name">
+                    <input type="text" id="eventTitle" name="title" required placeholder="Enter event name">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="eventDate">Date</label>
-                        <input type="date" id="eventDate" required>
+                        <input type="date" id="eventDate" name="event_date" required>
                     </div>
                     <div class="form-group">
                         <label for="eventTime">Time</label>
-                        <input type="time" id="eventTime" required>
+                        <input type="time" id="eventTime" name="event_time" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="eventLocation">Location</label>
-                    <input type="text" id="eventLocation" required placeholder="Building, Room Number">
+                    <input type="text" id="eventLocation" name="location" required placeholder="Building, Room Number">
                 </div>
 
                 <div class="form-group">
                     <label for="eventCategory">Category</label>
-                    <select id="eventCategory" required>
+                    <select id="eventCategory" name="category" required>
                         <option value="">Select a category</option>
                         <option value="Academic">Academic</option>
                         <option value="Social">Social</option>
                         <option value="Sports">Sports</option>
                         <option value="Cultural">Cultural</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Music">Music</option>
+                        <option value="Food">Food</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="eventCapacity">Capacity</label>
-                    <input type="number" id="eventCapacity" required min="1" placeholder="Maximum attendees">
+                    <input type="number" id="eventCapacity" name="capacity" required min="1" placeholder="Maximum attendees">
                 </div>
 
                 <div class="form-group">
                     <label for="eventDescription">Description</label>
-                    <textarea id="eventDescription" rows="5" required placeholder="Tell students about your event..."></textarea>
+                    <textarea id="eventDescription" rows="5" name="description" required placeholder="Tell students about your event..."></textarea>
                 </div>
 
                 <div class="form-actions">
                     <a href="index.html" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Create Event</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Create Event</button>
                 </div>
             </form>
         </div>
@@ -91,6 +98,6 @@
 
     <div class="notification-toast" id="notificationToast"></div>
 
-    <script src="create-event.js"></script>
+    <script src="js/create-event.js"></script>
 </body>
 </html>
