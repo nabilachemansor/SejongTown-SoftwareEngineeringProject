@@ -1,80 +1,10 @@
-// const events = [
-//   {
-//     id: 1,
-//     title: "AI & Machine Learning Workshop",
-//     category: "Academic",
-//     date: "2024-02-15",
-//     time: "14:00",
-//     location: "Engineering Building, Room 301",
-//     organizer: "CS Department",
-//     capacity: 50,
-//     registered: 35,
-//     description:
-//       "Learn the fundamentals of AI and machine learning with hands-on projects and real-world applications.",
-//   },
-//   {
-//     id: 2,
-//     title: "Spring Festival 2024",
-//     category: "Cultural",
-//     date: "2024-03-20",
-//     time: "18:00",
-//     location: "Main Campus Plaza",
-//     organizer: "Student Council",
-//     capacity: 500,
-//     registered: 342,
-//     description: "Celebrate spring with music, food, and cultural performances from around the world.",
-//   },
-//   {
-//     id: 3,
-//     title: "Basketball Tournament Finals",
-//     category: "Sports",
-//     date: "2024-02-25",
-//     time: "16:00",
-//     location: "Sports Complex",
-//     organizer: "Athletics Department",
-//     capacity: 200,
-//     registered: 187,
-//     description: "Cheer for your favorite team in the championship match of the intramural basketball tournament.",
-//   },
-//   {
-//     id: 4,
-//     title: "Career Fair 2024",
-//     category: "Academic",
-//     date: "2024-03-10",
-//     time: "10:00",
-//     location: "Student Center Hall",
-//     organizer: "Career Services",
-//     capacity: 300,
-//     registered: 156,
-//     description: "Meet recruiters from top companies and explore internship and full-time opportunities.",
-//   },
-//   {
-//     id: 5,
-//     title: "K-Pop Dance Night",
-//     category: "Social",
-//     date: "2024-02-18",
-//     time: "19:00",
-//     location: "Student Lounge",
-//     organizer: "Korean Cultural Club",
-//     capacity: 80,
-//     registered: 72,
-//     description: "Dance the night away with the latest K-Pop hits and learn new choreography.",
-//   },
-//   {
-//     id: 6,
-//     title: "Photography Exhibition",
-//     category: "Cultural",
-//     date: "2024-03-05",
-//     time: "15:00",
-//     location: "Art Gallery",
-//     organizer: "Photography Club",
-//     capacity: 100,
-//     registered: 45,
-//     description: "View stunning photographs captured by talented student photographers.",
-//   },
-// ]
-
 let currentCategory = "all"
+
+function formatDate(dateString) {
+  const date = new Date(dateString)
+  const options = { month: "short", day: "numeric", year: "numeric" }
+  return date.toLocaleDateString("en-US", options)
+}
 
 function checkAuth() {
   const raw = localStorage.getItem("currentUser")
@@ -473,32 +403,32 @@ function setupChatbot() {
       chatbotToggle.style.display = "flex"
     })
   }
-  
-//bila tmbah
-async function queryAI(message) {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null")
-  const payload = {
-    message: message,
-    student_id: currentUser ? currentUser.student_id : null
-  }
-  try {
-    const res = await fetch("http://localhost:5050/chat", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(payload)
-    })
-    if (!res.ok) {
-      console.error("AI service error", res.status);
-      return { reply: "Sorry, AI service is unavailable right now." }
-    }
-    return await res.json();
-  } catch (err) {
-    console.error("Network error to AI service", err)
-    return { reply: "Could not reach AI service." }
-  }
-}
 
-function addMessage(text, sender) {
+  //bila tmbah
+  async function queryAI(message) {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null")
+    const payload = {
+      message: message,
+      student_id: currentUser ? currentUser.student_id : null
+    }
+    try {
+      const res = await fetch("http://localhost:5050/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        console.error("AI service error", res.status);
+        return { reply: "Sorry, AI service is unavailable right now." }
+      }
+      return await res.json();
+    } catch (err) {
+      console.error("Network error to AI service", err)
+      return { reply: "Could not reach AI service." }
+    }
+  }
+
+  function addMessage(text, sender) {
     const msg = document.createElement("div")
     msg.className = `message ${sender}`
     msg.innerHTML = `<div class="message-content">${text}</div>`
@@ -506,52 +436,58 @@ function addMessage(text, sender) {
     chatbotMessages.scrollTop = chatbotMessages.scrollHeight
   }
 
-// wire to UI Bila tmbah
-if (chatbotSend && chatbotInput) {
-  const sendMessage = async () => {
-    const message = chatbotInput.value.trim()
-    if (!message) return
+  // wire to UI Bila tmbah
+  if (chatbotSend && chatbotInput) {
+    const sendMessage = async () => {
+      const message = chatbotInput.value.trim()
+      if (!message) return
 
-    addMessage(message, "user");
-    chatbotInput.value = "";
+      addMessage(message, "user");
+      chatbotInput.value = "";
 
-    addMessage("Thinking...", "bot"); // temporary indicator
-    const response = await queryAI(message)
-    // remove the "Thinking..." (last bot message) if present
-    const botMsgs = document.querySelectorAll("#chatbotMessages .message.bot");
-    if (botMsgs.length) {
-      const last = botMsgs[botMsgs.length - 1]
-      if (last && last.textContent.includes("Thinking")) last.remove()
-    }
+      addMessage("Thinking...", "bot"); // temporary indicator
+      const response = await queryAI(message)
+      // remove the "Thinking..." (last bot message) if present
+      const botMsgs = document.querySelectorAll("#chatbotMessages .message.bot");
+      if (botMsgs.length) {
+        const last = botMsgs[botMsgs.length - 1]
+        if (last && last.textContent.includes("Thinking")) last.remove()
+      }
 
-    // default response text
-    const replyText = response.reply || "Sorry, I couldn't answer that."
-    addMessage(replyText, "bot");
+      // default response text
+      const replyText = response.reply || "Sorry, I couldn't answer that."
+      addMessage(replyText, "bot");
 
-    // if response.events exists, render quick suggestions 9show rec events)
- if (Array.isArray(response.events) && response.events.length > 0) {
+      // if response.events exists, render quick suggestions 9show rec events)
+      if (Array.isArray(response.events) && response.events.length > 0) {
         const suggestions = response.events.slice(0, 9).map(e => `
-          <div class="chat-event">
-            <a href="/frontend/event-details.html?id=${e.event_id}">${e.title}</a>
-            <div class="small">${new Date(e.event_date).toLocaleDateString('en-CA')}</div>
+          <div class="chat-event-card">
+            <div class="chat-event-info">
+              <div class="chat-event-title">${e.title}</div>
+              <div class="chat-event-date">${new Date(e.event_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+            </div>
+            <button class="chat-event-btn" onclick="window.location.href='event-details.html?id=${e.event_id}'">View Details →</button>
           </div>
         `).join("")
 
-        addMessage("Suggested events:<br>" + suggestions, "bot")
+        const suggestionsMsg = document.createElement("div")
+        suggestionsMsg.className = "message bot"
+        suggestionsMsg.innerHTML = `
+          <div class="message-content">
+            <div class="chat-suggestions-header">Recommended Events:</div>
+            <div class="chat-events-grid">${suggestions}</div>
+          </div>
+        `
+        chatbotMessages.appendChild(suggestionsMsg)
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight
       }
     }
 
-  chatbotSend.addEventListener("click", sendMessage)
-  chatbotInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage()
-  })
-}
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString)
-  const options = { month: "short", day: "numeric", year: "numeric" }
-  return date.toLocaleDateString("en-US", options)
+    chatbotSend.addEventListener("click", sendMessage)
+    chatbotInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage()
+    })
+  }
 }
 
 window.showNotification = (message) => {
