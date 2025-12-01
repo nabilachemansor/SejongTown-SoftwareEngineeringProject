@@ -21,7 +21,7 @@ def to_local_date(utc_str, tz_offset=9):
 
     dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
     dt_local = dt_utc + timedelta(hours=tz_offset)
-    return dt_local.date()
+    return dt_local.date()
 
 app = Flask(__name__)
 CORS(app)
@@ -278,7 +278,7 @@ def chat():
         today = datetime.today().date()
         upcoming = [
             e for e in events 
-            if to_local_date(e.get("event_date")) >= today][:5]
+            if to_local_date(e.get("event_date")) >= today][:5]
         titles = ", ".join([f'{e.get("title")} ({to_local_date(e.get("event_date"))})' for e in upcoming])
         reply = f"Sorry, I didn't understand that. Here are some upcoming events: {titles}"
         print("Reply:", reply)
