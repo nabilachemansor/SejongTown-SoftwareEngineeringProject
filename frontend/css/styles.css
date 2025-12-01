@@ -599,6 +599,75 @@ body {
   background-color: var(--primary-dark);
 }
 
+/* Added styles for improved chatbot event suggestion cards */
+.chat-suggestions-header {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.chat-events-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.chat-event-card {
+  display: flex;
+  flex-direction:column;
+  gap: 1rem;
+  padding: 0.875rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.chat-event-card:hover {
+  border-color: var(--primary);
+  background-color: var(--bg-hover);
+}
+
+.chat-event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-event-title {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-event-date,
+.chat-event-time,
+.chat-event-location {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.chat-event-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary);
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s;
+}
+
+.chat-event-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateX(2px);
+}
+
 .notification-toast {
   position: fixed;
   top: 2rem;
@@ -754,13 +823,10 @@ body {
   transition: all 0.3s;
 }
 
-.menu-item:hover {
-  background-color: var(--bg-hover);
-  color: var(--primary);
-}
-
+.menu-item:hover,
 .menu-item.active {
   background-color: var(--bg-hover);
+  color: var(--primary);
 }
 
 .profile-content {
@@ -817,6 +883,11 @@ body {
 
 .interest-tag input:checked + span {
   color: var(--primary);
+}
+
+/* Add red border to the interest tag when checkbox is checked */
+.interest-tag:has(input:checked) {
+  border-color: var(--primary);
 }
 
 /* Add modal styles */

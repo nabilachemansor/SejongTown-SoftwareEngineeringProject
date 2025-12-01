@@ -1,20 +1,3 @@
-// import express from "express";
-// import pool from "../database.js";
-// import multer from "multer";
-
-// const router = express.Router();
-
-// // Create events
-// // --- File Upload Setup ---
-// const storage = multer.diskStorage({
-//   destination: "uploads/posters",
-//   filename: (req, file, cb) => {
-//     const uniqueName = Date.now() + "-" + file.originalname;
-//     cb(null, uniqueName);
-//   }
-// });
-// const upload = multer({ storage });
-
 import multer from "multer";
 import path from "path";
 import express from "express";

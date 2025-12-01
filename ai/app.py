@@ -2,38 +2,30 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from collections import Counter
-from nlp_utils import detect_intent, parse_date_keyword, extract_category_or_keyword, get_bot_response
+from nlp_utils import detect_intent, parse_date_keyword, extract_category_or_keyword
 from datetime import datetime, timedelta
 
+# Timezone-safe date fix
 def to_local_date(utc_str, tz_offset=9):
-    """Convert UTC ISO string to local date with offset in hours (default KST=UTC+9)"""
-    """# Remove Z if present
+    if not utc_str:
+        return None
     if utc_str.endswith("Z"):
         utc_str = utc_str[:-1]
     dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
     dt_local = dt_utc + timedelta(hours=tz_offset)
     return dt_local.date()
-    """
-    if not utc_str:
-        return None
-    if utc_str.endswith("Z"):
-        utc_str = utc_str[:-1]
 
-    dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
-    dt_local = dt_utc + timedelta(hours=tz_offset)
-    return dt_local.date()
-
+# Flask setup
 app = Flask(__name__)
 CORS(app)
 
-# depends on backend punye localhost
-BACKEND_BASE = "http://localhost:5000/api" 
+BACKEND_BASE = "http://localhost:5000/api"
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status":"ok"})
+    return jsonify({"status": "ok"})
 
-
+# Backend fetchers
 def fetch_all_events():
     resp = requests.get(f"{BACKEND_BASE}/events")
     resp.raise_for_status()
@@ -51,258 +43,220 @@ def fetch_user_interests(student_id):
         return []
     return resp.json()
 
-"""
-# dummy data for testing
-def fetch_all_events():
-    return [
-        {"event_id": 1, "title": "AI Workshop", "event_date": "2025-11-27", "category": "technology"},
-        {"event_id": 2, "title": "Sports Day", "event_date": "2025-11-28", "category": "sports"},
-        {"event_id": 3, "title": "Cybersecurity Talk", "event_date": "2025-12-01", "category": "technology"},
-    ]
-
-def fetch_user_registered_events(student_id):
-    return [
-        {"event_id": 1, "title": "AI Workshop", "event_date": "2025-11-27", "category": "computer"},
-        ]
-
-def fetch_user_interests(student_id):
-    dummy = {
-        "1":["technology","music"],
-        "2":["sports"],
-    }
-    return dummy.get(str(student_id), [])
-"""
-
+# CHAT ENDPOINT
 @app.route("/chat", methods=["POST"])
-
 def chat():
     payload = request.json or {}
-    user_id = payload.get("student_id")  # optional
+    user_id = payload.get("student_id")
     message = payload.get("message", "")
+
+    # Require login first
+    if not user_id:
+        return jsonify({"reply": "Please log in first to use the chatbot."}), 401
     if not message:
-        return jsonify({"reply": "Please send a question in the request body 'message'."}), 400
+        return jsonify({"reply": "Please send a question."}), 400
 
     message_lower = message.strip().lower()
     intent = detect_intent(message)
-    
-    # --- Debug prints ---
-    print("==== New Chat Request ====")
-    print("User message:", message)
-    print("Detected intent:", intent)
+
+    print("\n==== NEW CHAT ====")
+    print("User:", message)
+    print("Intent:", intent)
 
     try:
         events = fetch_all_events()
-        print("Events fetched from backend:", events)
+        print("Events fetched:", len(events))
 
-        # --- 1. Handle basic greetings / yes / no / thanks ---
-        greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
-        yes_words = ["yes", "yeah", "yep", "sure", "ok", "okay"]
-        no_words = ["no", "nope", "nah", "not really"]
-        thanks_words = ["thanks", "thank you", "thx"]
+        # define today once for this request
+        today = datetime.today().date()
 
-        if any(word in message_lower for word in greetings):
-            reply = "Hello! How can I help you with events today?"
-            print("Replying with greeting:", reply)
-            return jsonify({"reply": reply})
+        #  BASIC CHATS
+        if any(w in message_lower for w in ["hi", "hello", "hey"]):
+            return jsonify({"reply": "Hello! How can I help you with events today?"})
+        if any(w in message_lower for w in ["thanks", "thank you"]):
+            return jsonify({"reply": "You're welcome! 😊"})
 
-        if any(word in message_lower for word in yes_words):
-            reply = "Great! What kind of events are you interested in?"
-            print("Replying with yes:", reply)
-            return jsonify({"reply": reply})
-
-        if any(word in message_lower for word in no_words):
-            reply = "No problem! Let me know if you want to see any events."
-            print("Replying with no:", reply)
-            return jsonify({"reply": reply})
-
-        if any(word in message_lower for word in thanks_words):
-            reply = "You're welcome! 😊"
-            print("Replying with thanks:", reply)
-            return jsonify({"reply": reply})
-
-        # --- 2. Events on specific date/range OR category ---
+        # EVENTS BY DATE / CATEGORY
         if intent in ["events_on_date", "events_by_category_or_keyword"]:
-            matched = events[:]  # start with all events
+            matched = events[:]
 
-            # 1️⃣ Date range filtering
+            # Step 1: Try parse_date_keyword (exact date or range)
             drange = parse_date_keyword(message)
+
+            # Step 1a: Month-only fallback if parse_date_keyword returns None
+            if not drange:
+                import calendar, re
+                month_match = re.search(
+                    r"\b(january|february|march|april|may|june|july|august|september|october|november|december)\b",
+                    message_lower
+                )
+                if month_match:
+                    month_name = month_match.group(1)
+                    month_number = {
+                        "january": 1, "february": 2, "march": 3, "april": 4,
+                        "may": 5, "june": 6, "july": 7, "august": 8,
+                        "september": 9, "october": 10, "november": 11, "december": 12
+                    }[month_name]
+                    year = datetime.today().year
+                    start_dt = datetime(year, month_number, 1).date()
+                    last_day = calendar.monthrange(year, month_number)[1]
+                    end_dt = datetime(year, month_number, last_day).date()
+                    drange = (start_dt, end_dt)
+
+            # Step 2: Filter by date if drange exists
             if drange:
-                start, end = drange
-                start_dt = datetime.fromisoformat(start).date()
-                end_dt = datetime.fromisoformat(end).date()
-                filtered_by_date = []
+                start_dt, end_dt = drange
+
+                # Convert from string if parse_date_keyword returned ISO strings
+                if isinstance(start_dt, str):
+                    start_dt = datetime.fromisoformat(start_dt).date()
+                if isinstance(end_dt, str):
+                    end_dt = datetime.fromisoformat(end_dt).date()
+
+                filtered = []
                 for e in matched:
-                    try:
-                        d = to_local_date(e.get("event_date"))
-                    except:
-                        try:
-                            d = datetime.strptime(e.get("event_date")[:10], "%Y-%m-%d").date()
-                        except:
-                            continue
+                    d = to_local_date(e.get("event_date"))
+                    if d is None:
+                        continue  # skip invalid dates
                     if start_dt <= d <= end_dt:
-                        filtered_by_date.append(e)
-                matched = filtered_by_date
-                print(f"Events after date filtering ({start_dt} to {end_dt}):", [e["title"] for e in matched])
+                        filtered.append(e)
+                matched = filtered
 
-            # 2️⃣ Category/keyword filtering
-            kws = extract_category_or_keyword(message)
-            print("Keywords extracted:", kws)
+            # Step 3: Filter by category/keyword ONLY when the intent is category-based
+            kws = None
+            if intent == "events_by_category_or_keyword":
+                kws = extract_category_or_keyword(message)
+
             if kws:
-                valid_categories = {e.get("category", "").lower() for e in events}
-                category_keywords = [k.lower() for k in kws if k.lower() in valid_categories]
-                if category_keywords:
-                    matched = [e for e in matched if e.get("category", "").lower() in category_keywords]
-                    print("Events after category filtering:", [e["title"] for e in matched])
+                kws_lower = [k.lower() for k in kws]
+                matched = [
+                    e for e in matched
+                    if e.get("category", "").lower() in kws_lower
+                ]
 
-            # 3️⃣ Prepare reply
+            # Step 4: Prepare reply
             if not matched:
-                reply = "I couldn't find events for that date/category. Do you want to see upcoming events?"
-                return jsonify({"reply": reply, "events": []})
-
-            titles = ", ".join([f'{e["title"]} ({to_local_date(e["event_date"])})' for e in matched[:10]])
-            reply = f"I found these events: {titles}"
-            return jsonify({"reply": reply, "events": matched[:10]})
-
-
-        # --- 4. My registered events ---
-        if intent == "my_registered_events":
-            if not user_id:
-                reply = "I need your student_id to fetch your registered events. Please log in first."
-                print("Reply:", reply)
-                return jsonify({"reply": reply})
-            regs = fetch_user_registered_events(user_id)
-            print("Registered events for user:", regs)
-            if not regs:
-                reply = "You don't seem to have any registered events."
-                print("Reply:", reply)
-                return jsonify({"reply": reply})
-            titles = ", ".join([f'{e["title"]} ({to_local_date(e["event_date"])})' for e in regs[:5]])
-            reply = f"You're registered for: {titles}"
-            print("Reply:", reply)
-            return jsonify({"reply": reply, "events": regs[:5]})
-
-        # --- 5. Recommend upcoming events ---
-        if intent == "recommend_events":
-            today = datetime.today().date()
-            upcoming = [e for e in events if to_local_date(e.get("event_date")) >= today]
-            print("Upcoming events:", upcoming)
-            
-            if not upcoming:
-                reply = "There are no upcoming events at the moment."
-                print("Reply:", reply)
-                return jsonify({"reply": reply, "events": []})
-
-            # Personalization
-            user_categories = []
-            if user_id:
-                regs = fetch_user_registered_events(user_id)
-                interests = fetch_user_interests(user_id)
-
-                print("user registered events:", regs)
-                print("user interest from backend:", interests)
-
-                #registered event cat
-                user_categories += [
-                    r.get("category","").lower()
-                    for r in regs
-                    if r.get("category")
-                ]
-                #interest handling
-                for i in interests:
-                    if isinstance(i, dict) and "name" in i:
-                        user_categories.append(i["name"].lower())
-                    elif isinstance(i, str):
-                        user_categories.append(i.lower())
-
-            print("Final user preference categories:", user_categories)
-
-            if user_categories:
-                top = [c for c, _ in Counter(user_categories).most_common(2)]
-                personalized = [
-                    e for e in upcoming
-                    if str(e.get("category", "")).lower() in top
-                    
-                ]
-            else:
-                personalized = []
-
-            final_list = personalized if personalized else upcoming
+                return jsonify({"reply": "No events found for that request.", "events": []})
 
             titles = ", ".join([
                 f'{e["title"]} ({to_local_date(e["event_date"])})'
-                for e in final_list[:5]
+                for e in matched[:10]
             ])
+            return jsonify({
+                "reply": f"I found these events: {titles}",
+                "events": matched[:10]
+            })
 
-            reply = f"I recommend these upcoming events: {titles}"
-            print("Reply:", reply)
-            return jsonify({"reply": reply, "events": final_list[:5]})
-        """
+        # MY REGISTERED EVENTS
+        if intent == "my_registered_events":
+            regs = fetch_user_registered_events(user_id)
+            if not regs:
+                return jsonify({"reply": "You are not registered for any events."})
+            titles = ", ".join([
+                f'{e["title"]} ({to_local_date(e["event_date"])})' for e in regs[:5]
+            ])
+            return jsonify({"reply": f"You're registered for: {titles}", "events": regs[:5]})
+
+        # AI RANKED RECOMMENDATION
         if intent == "recommend_events":
-            today = datetime.today().date()
-            upcoming = [e for e in events if to_local_date(e.get("event_date")) >= today]
-            print("Upcoming events:", upcoming)
+            # Step 1: Date filter FIRST
+            upcoming = [
+                e for e in events
+                if to_local_date(e.get("event_date")) is not None
+                and to_local_date(e.get("event_date")) >= today
+            ]
+
+            drange = parse_date_keyword(message)
+            if drange:
+                start, end = drange
+
+                # Convert from ISO strings if needed
+                if isinstance(start, str):
+                    start_dt = datetime.fromisoformat(start).date()
+                else:
+                    start_dt = start
+
+                if end:
+                    if isinstance(end, str):
+                        end_dt = datetime.fromisoformat(end).date()
+                    else:
+                        end_dt = end
+                else:
+                    # if no explicit end, default to end of that month
+                    next_month = (start_dt.replace(day=28) + timedelta(days=4)).replace(day=1)
+                    end_dt = next_month - timedelta(days=1)
+
+                upcoming = [
+                    e for e in upcoming
+                    if start_dt <= to_local_date(e.get("event_date")) <= end_dt
+                ]
 
             if not upcoming:
-                reply = "There are no upcoming events at the moment."
-                print("Reply:", reply)
-                return jsonify({"reply": reply, "events": []})
+                return jsonify({"reply": "There are no events in that period.", "events": []})
 
-            # Personalization
+            # Step 2: User preferences
             user_categories = []
-            if user_id:
-                regs = fetch_user_registered_events(user_id)
-                interests = fetch_user_interests(user_id)
-                user_categories += [r.get("category", "").lower() for r in regs]
-                user_categories += [i.get("name", "").lower() for i in interests]
+            regs = fetch_user_registered_events(user_id)
+            interests = fetch_user_interests(user_id)
 
-            if user_categories:
-                top = [c for c, _ in Counter(user_categories).most_common(2)]
-                personalized = [e for e in upcoming if e.get("category", "").lower() in top]
-            else:
-                personalized = []
+            user_categories += [r.get("category", "").lower() for r in regs if r.get("category")]
+            for i in interests:
+                if isinstance(i, dict) and "name" in i:
+                    user_categories.append(i["name"].lower())
+                elif isinstance(i, str):
+                    user_categories.append(i.lower())
 
-            final_list = personalized if personalized else upcoming
-            titles = ", ".join([f'{e["title"]} ({to_local_date(e["event_date"])})' for e in final_list[:5]])
-            reply = f"I recommend these upcoming events: {titles}"
-            print("Reply:", reply)
-            return jsonify({"reply": reply, "events": final_list[:5]})
-            """
+            print("User preference categories:", user_categories)
 
-        # --- 6. Help ---
+            # Step 3: AI Ranking (simple scoring)
+            ranked_events = []
+            for e in upcoming:
+                score = 0
+                e_cat = str(e.get("category", "")).lower()
+                if e_cat in user_categories:
+                    score += 5
+                d_local = to_local_date(e.get("event_date"))
+                if d_local:
+                    days_left = (d_local - today).days
+                    if days_left <= 7:
+                        score += 1
+                ranked_events.append((score, e))
+
+            ranked_events.sort(key=lambda x: x[0], reverse=True)
+            final_list = [e for score, e in ranked_events]
+
+            titles = ", ".join([
+                f'{e["title"]} ({to_local_date(e["event_date"])})' for e in final_list[:10]
+            ])
+            return jsonify({
+                "reply": f"I recommend these events for you: {titles}",
+                "events": final_list[:10]
+            })
+
+        # HELP
         if intent == "help":
-            reply = "I can tell you what events are happening today/tomorrow, show events by category (e.g., 'computer class this month'), list your registered events, and recommend upcoming events."
-            print("Reply:", reply)
-            return jsonify({"reply": reply})
+            return jsonify({
+                "reply": "You can ask about today's events, monthly events, event categories, your registered events, or get recommendations."
+            })
 
-        # --- 7. Fallback for unknown queries ---
-        today = datetime.today().date()
+        # FALLBACK
         upcoming = [
-            e for e in events 
-            if to_local_date(e.get("event_date")) >= today][:5]
-        titles = ", ".join([f'{e.get("title")} ({to_local_date(e.get("event_date"))})' for e in upcoming])
-        reply = f"Sorry, I didn't understand that. Here are some upcoming events: {titles}"
-        print("Reply:", reply)
-        return jsonify({"reply": reply, "events": upcoming})
+            e for e in events
+            if to_local_date(e.get("event_date")) is not None
+            and to_local_date(e.get("event_date")) >= today
+        ][:5]
+        titles = ", ".join([
+            f'{e["title"]} ({to_local_date(e["event_date"])})' for e in upcoming
+        ])
+        return jsonify({
+            "reply": f"Sorry, I didn’t understand that. Here are some upcoming events: {titles}",
+            "events": upcoming
+        })
 
-    except requests.HTTPError as e:
-        print("HTTPError:", e)
-        return jsonify({"reply": "Sorry, the AI service couldn't reach the backend API."}), 500
     except Exception as e:
-        print("Unexpected error in /chat:", e)
-        return jsonify({"reply": "Unexpected error in AI service."}), 500
+        print("🔥 ERROR:", e)
+        return jsonify({"reply": "Unexpected server error."}), 500
 
-# if __name__ == "__main__":
-#     app.run(
-#         host="0.0.0.0",
-#         port=6000, 
-#         debug=False,
-#         use_reloader=False
-#     )
-
+# RUN SERVER
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5050,   # use 5050 instead of 6000 because 6000 is unsafe port
-        debug=False,
-        use_reloader=False
-    )
+    app.run(host="0.0.0.0", port=5050, debug=False, use_reloader=False)

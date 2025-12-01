@@ -10,7 +10,6 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <!-- Replaced text with logo image -->
                 <a href="index.html">
                     <img src="image/sejongtown-logo.png" alt="SejongTown" class="logo">
                 </a>
@@ -20,7 +19,6 @@
                 <li><a href="my-events.html">My Events</a></li>
                 <li><a href="create-event.html">Create Event</a></li>
                 <li><a href="profile.html" class="active">Profile</a></li>
-                <!-- Added auth button container -->
                 <li id="authButtonContainer"></li>
             </ul>
         </div>
@@ -51,11 +49,11 @@
                     <form class="profile-form">
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" value="-">
+                            <input type="text" id="fullName" value="-" readonly>
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" id="email" value="-">
+                            <input type="email" id="email" value="-" readonly>
                         </div>
                         <div class="form-group">
                             <label for="studentId">Student ID</label>
@@ -63,9 +61,8 @@
                         </div>
                         <div class="form-group">
                             <label for="department">Department</label>
-                            <input type="text" id="department" value="-">
+                            <input type="text" id="department" value="-" readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
                 </div>
 
@@ -112,7 +109,6 @@
         </div>
     </main>
 
-    <!-- Added auth modal -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -123,17 +119,13 @@
                 <form id="authForm">
                     <div class="form-group">
                         <label for="authStudentId">Student ID</label>
-                        <input type="text" id="authStudentId" required placeholder="8-digit User ID" pattern="[0-9]{8}" maxlength="8">
+                        <input type="text" id="authStudentId" required placeholder="8-digit User ID" pattern="[0-9]{8}"
+                            maxlength="8">
                     </div>
 
-                    <div class="form-group" id="authNameGroup" style="display: none;">
-                        <label for="authName">Full Name</label>
-                        <input type="text" id="authName" placeholder="Enter your full name">
-                    </div>
-                    
-                    <div class="form-group" id="authEmailGroup" style="display: none;">
-                        <label for="authEmail">Email</label>
-                        <input type="email" id="authEmail" placeholder="Enter your email">
+                    <div class="form-group" id="authBirthDateGroup" style="display: none;">
+                        <label for="authBirthDate">Birth Date</label>
+                        <input type="text" id="authBirthDate" placeholder="YYYY-MM-DD">
                     </div>
 
                     <div class="form-group">
@@ -141,15 +133,11 @@
                         <input type="password" id="authPassword" required placeholder="Enter your password">
                     </div>
 
-                    <div class="form-group" id="authDepartmentGroup" style="display: none;">
-                        <label for="authEmail">Department</label>
-                        <input type="text" id="authDepartment" placeholder="Enter your department">
-                    </div>
-                    
                     <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">Login</button>
                 </form>
                 <div class="auth-switch">
-                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button></p>
+                    <p id="authSwitchText">Don't have an account? <button type="button" id="authSwitchBtn"
+                            class="link-btn">Sign up</button></p>
                 </div>
             </div>
         </div>

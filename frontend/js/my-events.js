@@ -45,9 +45,7 @@ function setupAuthModal() {
   const closeBtn = document.getElementById("authModalClose")
   const switchBtn = document.getElementById("authSwitchBtn")
   const authForm = document.getElementById("authForm")
-  const emailGroup = document.getElementById("authEmailGroup")
-  const nameGroup = document.getElementById("authNameGroup")
-  const departmentGroup = document.getElementById("authDepartmentGroup")
+  const birthDateGroup = document.getElementById("authBirthDateGroup")
   const modalTitle = document.getElementById("authModalTitle")
   const submitBtn = document.getElementById("authSubmitBtn")
   const switchText = document.getElementById("authSwitchText")
@@ -76,17 +74,14 @@ function setupAuthModal() {
       if (isLoginMode) {
         modalTitle.textContent = "Login to SejongTown"
         submitBtn.textContent = "Login"
-        emailGroup.style.display = "none"
-        nameGroup.style.display = "none"
-        departmentGroup.style.display = "none"
+        birthDateGroup.style.display = "none"
         switchText.innerHTML =
           'Don\'t have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button>'
-      } else {
+      }
+       else {
         modalTitle.textContent = "Sign Up for SejongTown"
         submitBtn.textContent = "Sign Up"
-        emailGroup.style.display = "block"
-        nameGroup.style.display = "block"
-        departmentGroup.style.display = "block"
+        birthDateGroup.style.display = "block"
         switchText.innerHTML =
           'Already have an account? <button type="button" id="authSwitchBtn" class="link-btn">Login</button>'
       }
@@ -102,10 +97,8 @@ function setupAuthModal() {
       e.preventDefault()
 
       const studentId = document.getElementById("authStudentId").value
-      const name = document.getElementById("authName").value
-      const email = document.getElementById("authEmail").value
+      const birthDate = document.getElementById("authBirthDate").value
       const password = document.getElementById("authPassword").value
-      const department = document.getElementById("authDepartment").value
 
       if (!/^\d{8}$/.test(studentId)) {
         window.showNotification("Student ID must be exactly 8 digits")
@@ -131,10 +124,7 @@ function setupAuthModal() {
         {
           const userObj = result.user || result
           const normalized = {
-            student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            student_id: userObj.student_id || userObj.studentId || studentId
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
@@ -150,10 +140,8 @@ function setupAuthModal() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             student_id: studentId,
-            name,
-            email,
-            password,
-            department
+            birthdate: birthDate,
+            password: password
           })
         })
 
@@ -169,15 +157,13 @@ function setupAuthModal() {
           const userObj = result.user || result
           const normalized = {
             student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            birthDate: userObj.birthdate || birthDate || ""
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
         modal.classList.remove("active")
         updateAuthUI()
-        window.showNotification(`Welcome to SejongTown, ${name}!`)
+        window.showNotification(`Welcome to SejongTown, ${result.user.name}!`)
         authForm.reset()
       }
     })
@@ -448,81 +434,3 @@ function formatDate(dateString) {
   const options = { month: "short", day: "numeric", year: "numeric" }
   return date.toLocaleDateString("en-US", options)
 }
-
-// if (!window.eventsData) {
-//   window.eventsData = [
-//     {
-//       id: 1,
-//       title: "AI & Machine Learning Workshop",
-//       category: "Academic",
-//       date: "2024-02-15",
-//       time: "14:00",
-//       location: "Engineering Building, Room 301",
-//       organizer: "CS Department",
-//       capacity: 50,
-//       registered: 35,
-//       description:
-//         "Learn the fundamentals of AI and machine learning with hands-on projects and real-world applications.",
-//     },
-//     {
-//       id: 2,
-//       title: "Spring Festival 2024",
-//       category: "Cultural",
-//       date: "2024-03-20",
-//       time: "18:00",
-//       location: "Main Campus Plaza",
-//       organizer: "Student Council",
-//       capacity: 500,
-//       registered: 342,
-//       description: "Celebrate spring with music, food, and cultural performances from around the world.",
-//     },
-//     {
-//       id: 3,
-//       title: "Basketball Tournament Finals",
-//       category: "Sports",
-//       date: "2024-02-25",
-//       time: "16:00",
-//       location: "Sports Complex",
-//       organizer: "Athletics Department",
-//       capacity: 200,
-//       registered: 187,
-//       description: "Dance the night away with the latest K-Pop hits and learn new choreography.",
-//     },
-//     {
-//       id: 4,
-//       title: "Career Fair 2024",
-//       category: "Academic",
-//       date: "2024-03-10",
-//       time: "10:00",
-//       location: "Student Center Hall",
-//       organizer: "Career Services",
-//       capacity: 300,
-//       registered: 156,
-//       description: "Meet recruiters from top companies and explore internship and full-time opportunities.",
-//     },
-//     {
-//       id: 5,
-//       title: "K-Pop Dance Night",
-//       category: "Social",
-//       date: "2024-02-18",
-//       time: "19:00",
-//       location: "Student Lounge",
-//       organizer: "Korean Cultural Club",
-//       capacity: 80,
-//       registered: 72,
-//       description: "Cheer for your favorite team in the championship match of the intramural basketball tournament.",
-//     },
-//     {
-//       id: 6,
-//       title: "Photography Exhibition",
-//       category: "Cultural",
-//       date: "2024-03-05",
-//       time: "15:00",
-//       location: "Art Gallery",
-//       organizer: "Photography Club",
-//       capacity: 100,
-//       registered: 45,
-//       description: "View stunning photographs captured by talented student photographers.",
-//     },
-//   ]
-// }

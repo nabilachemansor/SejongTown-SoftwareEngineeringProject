@@ -254,9 +254,7 @@ function setupAuthModal() {
   const closeBtn = document.getElementById("authModalClose")
   const switchBtn = document.getElementById("authSwitchBtn")
   const authForm = document.getElementById("authForm")
-  const emailGroup = document.getElementById("authEmailGroup")
-  const nameGroup = document.getElementById("authNameGroup")
-  const departmentGroup = document.getElementById("authDepartmentGroup")
+  const birthDateGroup = document.getElementById("authBirthDateGroup")
   const modalTitle = document.getElementById("authModalTitle")
   const submitBtn = document.getElementById("authSubmitBtn")
   const switchText = document.getElementById("authSwitchText")
@@ -285,17 +283,14 @@ function setupAuthModal() {
       if (isLoginMode) {
         modalTitle.textContent = "Login to SejongTown"
         submitBtn.textContent = "Login"
-        emailGroup.style.display = "none"
-        nameGroup.style.display = "none"
-        departmentGroup.style.display = "none"
+        birthDateGroup.style.display = "none"
         switchText.innerHTML =
           'Don\'t have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button>'
-      } else {
+      }
+       else {
         modalTitle.textContent = "Sign Up for SejongTown"
         submitBtn.textContent = "Sign Up"
-        emailGroup.style.display = "block"
-        nameGroup.style.display = "block"
-        departmentGroup.style.display = "block"
+        birthDateGroup.style.display = "block"
         switchText.innerHTML =
           'Already have an account? <button type="button" id="authSwitchBtn" class="link-btn">Login</button>'
       }
@@ -311,10 +306,8 @@ function setupAuthModal() {
       e.preventDefault()
 
       const studentId = document.getElementById("authStudentId").value
-      const name = document.getElementById("authName").value
-      const email = document.getElementById("authEmail").value
+      const birthDate = document.getElementById("authBirthDate").value
       const password = document.getElementById("authPassword").value
-      const department = document.getElementById("authDepartment").value
 
       if (!/^\d{8}$/.test(studentId)) {
         window.showNotification("Student ID must be exactly 8 digits")
@@ -340,10 +333,7 @@ function setupAuthModal() {
         {
           const userObj = result.user || result
           const normalized = {
-            student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            student_id: userObj.student_id || userObj.studentId || studentId
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
@@ -359,10 +349,8 @@ function setupAuthModal() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             student_id: studentId,
-            name,
-            email,
-            password,
-            department
+            birthdate: birthDate,
+            password: password
           })
         })
 
@@ -378,15 +366,13 @@ function setupAuthModal() {
           const userObj = result.user || result
           const normalized = {
             student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            birthDate: userObj.birthdate || birthDate || ""
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
         modal.classList.remove("active")
         updateAuthUI()
-        window.showNotification(`Welcome to SejongTown, ${name}!`)
+        window.showNotification(`Welcome to SejongTown, ${result.user.name}!`)
         authForm.reset()
       }
     })

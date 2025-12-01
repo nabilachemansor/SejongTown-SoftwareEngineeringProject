@@ -42,9 +42,7 @@ function setupAuthModal() {
   const closeBtn = document.getElementById("authModalClose")
   const switchBtn = document.getElementById("authSwitchBtn")
   const authForm = document.getElementById("authForm")
-  const emailGroup = document.getElementById("authEmailGroup")
-  const nameGroup = document.getElementById("authNameGroup")
-  const departmentGroup = document.getElementById("authDepartmentGroup")
+  const birthDateGroup = document.getElementById("authBirthDateGroup")
   const modalTitle = document.getElementById("authModalTitle")
   const submitBtn = document.getElementById("authSubmitBtn")
   const switchText = document.getElementById("authSwitchText")
@@ -73,17 +71,14 @@ function setupAuthModal() {
       if (isLoginMode) {
         modalTitle.textContent = "Login to SejongTown"
         submitBtn.textContent = "Login"
-        emailGroup.style.display = "none"
-        nameGroup.style.display = "none"
-        departmentGroup.style.display = "none"
+        birthDateGroup.style.display = "none"
         switchText.innerHTML =
           'Don\'t have an account? <button type="button" id="authSwitchBtn" class="link-btn">Sign up</button>'
-      } else {
+      }
+      else {
         modalTitle.textContent = "Sign Up for SejongTown"
         submitBtn.textContent = "Sign Up"
-        emailGroup.style.display = "block"
-        nameGroup.style.display = "block"
-        departmentGroup.style.display = "block"
+        birthDateGroup.style.display = "block"
         switchText.innerHTML =
           'Already have an account? <button type="button" id="authSwitchBtn" class="link-btn">Login</button>'
       }
@@ -99,10 +94,8 @@ function setupAuthModal() {
       e.preventDefault()
 
       const studentId = document.getElementById("authStudentId").value
-      const name = document.getElementById("authName").value
-      const email = document.getElementById("authEmail").value
+      const birthDate = document.getElementById("authBirthDate").value
       const password = document.getElementById("authPassword").value
-      const department = document.getElementById("authDepartment").value
 
       if (!/^\d{8}$/.test(studentId)) {
         window.showNotification("Student ID must be exactly 8 digits")
@@ -128,10 +121,7 @@ function setupAuthModal() {
         {
           const userObj = result.user || result
           const normalized = {
-            student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            student_id: userObj.student_id || userObj.studentId || studentId
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
@@ -147,10 +137,8 @@ function setupAuthModal() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             student_id: studentId,
-            name,
-            email,
-            password,
-            department
+            birthdate: birthDate,
+            password: password
           })
         })
 
@@ -166,15 +154,13 @@ function setupAuthModal() {
           const userObj = result.user || result
           const normalized = {
             student_id: userObj.student_id || userObj.studentId || studentId,
-            name: userObj.name || name || "",
-            email: userObj.email || email || "",
-            department: userObj.department || department || "",
+            birthDate: userObj.birthdate || birthDate || ""
           }
           localStorage.setItem("currentUser", JSON.stringify(normalized))
         }
         modal.classList.remove("active")
         updateAuthUI()
-        window.showNotification(`Welcome to SejongTown, ${name}!`)
+        window.showNotification(`Welcome to SejongTown, ${result.user.name}!`)
         authForm.reset()
       }
     })
@@ -208,7 +194,11 @@ async function loadProfileData() {
     document.getElementById("email").value = data.email || "-";
     document.getElementById("studentId").value = data.student_id || "-";
     document.getElementById("department").value = data.department || "-";
+
     document.getElementById("studentId").disabled = true
+    document.getElementById("fullName").disabled = true
+    document.getElementById("email").disabled = true
+    document.getElementById("department").disabled = true
   } catch (error) {
     console.error("Error loading profile:", error);
   }
@@ -236,42 +226,6 @@ function setupProfileMenu() {
 
 function setupProfileForms() {
   const profileForm = document.querySelector(".profile-form")
-
-  // UPDATE PROFILE
-  if (profileForm) {
-    profileForm.addEventListener("submit", async (e) => {
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"))
-      const student_id = currentUser.student_id; // matches localStorage
-      console.log("Student ID:", currentUser); // DEBUG
-
-      if (!currentUser || !currentUser.student_id) {
-        console.error("No studentId in localStorage");
-        return;
-      }
-
-      const updatedData = {
-        name: document.getElementById("fullName").value,
-        email: document.getElementById("email").value,
-        department: document.getElementById("department").value
-      };
-
-      try {
-        const res = await fetch(`http://localhost:5000/api/auth/profile/${student_id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData)
-        });
-
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error || "Failed to update profile");
-
-        window.showNotification("Profile updated successfully!");
-      } catch (err) {
-        console.error(err);
-        window.showNotification("Error updating profile.");
-      }
-    })
-  }
 
   // INTERESTS FORM SUBMISSION
   const interestsBtn = document.querySelector("#interests .btn-primary");
