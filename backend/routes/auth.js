@@ -42,7 +42,7 @@ router.post("/signup", async (req, res) => {
 
     if (valid.rows.length === 0) {
       return res.status(403).json({
-        message: "Student ID and birthdate do not match Sejong University records."
+        message: "Student ID and Birth Date do not match Sejong University records."
       });
     }
 
