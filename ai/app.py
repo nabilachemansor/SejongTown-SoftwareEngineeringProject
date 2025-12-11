@@ -5,27 +5,27 @@ from collections import Counter
 from nlp_utils import detect_intent, parse_date_keyword, extract_category_or_keyword
 from datetime import datetime, timedelta
 
-# Timezone-safe date fix
-def to_local_date(utc_str, tz_offset=9):
+#Timezone conversion
+def to_local_date(utc_str, tz_offset=9): #korean local time
     if not utc_str:
         return None
     if utc_str.endswith("Z"):
-        utc_str = utc_str[:-1]
+        utc_str = utc_str[:-1] #remoce Z at the end if present
     dt_utc = datetime.strptime(utc_str[:19], "%Y-%m-%dT%H:%M:%S")
     dt_local = dt_utc + timedelta(hours=tz_offset)
     return dt_local.date()
 
-# Flask setup
+#Flask setup
 app = Flask(__name__)
 CORS(app)
 
-BACKEND_BASE = "http://localhost:5000/api"
+BACKEND_BASE = "http://localhost:5000/api" 
 
-@app.route("/health", methods=["GET"])
+@app.route("/health", methods=["GET"]) #check if server is running
 def health():
     return jsonify({"status": "ok"})
 
-# Backend fetchers
+#Backend fetchers
 def fetch_all_events():
     resp = requests.get(f"{BACKEND_BASE}/events")
     resp.raise_for_status()
@@ -43,14 +43,14 @@ def fetch_user_interests(student_id):
         return []
     return resp.json()
 
-# CHAT ENDPOINT
+#CHAT ENDPOINT
 @app.route("/chat", methods=["POST"])
 def chat():
     payload = request.json or {}
     user_id = payload.get("student_id")
     message = payload.get("message", "")
 
-    # Require login first
+    #Require login first
     if not user_id:
         return jsonify({"reply": "Please log in first to use the chatbot."}), 401
     if not message:
@@ -67,23 +67,23 @@ def chat():
         events = fetch_all_events()
         print("Events fetched:", len(events))
 
-        # define today once for this request
+        #define today once for this request
         today = datetime.today().date()
 
-        #  BASIC CHATS
+        #basic chat greetings
         if any(w in message_lower for w in ["hi", "hello", "hey"]):
             return jsonify({"reply": "Hello! How can I help you with events today?"})
         if any(w in message_lower for w in ["thanks", "thank you"]):
-            return jsonify({"reply": "You're welcome! 😊"})
+            return jsonify({"reply": "You're welcome!"})
 
-        # EVENTS BY DATE / CATEGORY
+        #event by date or category
         if intent in ["events_on_date", "events_by_category_or_keyword"]:
             matched = events[:]
 
-            # Step 1: Try parse_date_keyword (exact date or range)
+            #Try parse_date_keyword (exact date or range)
             drange = parse_date_keyword(message)
 
-            # Step 1a: Month-only fallback if parse_date_keyword returns None
+            #Month-only fallback if parse_date_keyword returns None
             if not drange:
                 import calendar, re
                 month_match = re.search(
@@ -103,11 +103,11 @@ def chat():
                     end_dt = datetime(year, month_number, last_day).date()
                     drange = (start_dt, end_dt)
 
-            # Step 2: Filter by date if drange exists
+            #Filter by date if drange exists
             if drange:
                 start_dt, end_dt = drange
 
-                # Convert from string if parse_date_keyword returned ISO strings
+                #Convert from string if parse_date_keyword returned ISO strings
                 if isinstance(start_dt, str):
                     start_dt = datetime.fromisoformat(start_dt).date()
                 if isinstance(end_dt, str):
@@ -117,12 +117,12 @@ def chat():
                 for e in matched:
                     d = to_local_date(e.get("event_date"))
                     if d is None:
-                        continue  # skip invalid dates
+                        continue  #skip invalid dates
                     if start_dt <= d <= end_dt:
                         filtered.append(e)
                 matched = filtered
 
-            # Step 3: Filter by category/keyword ONLY when the intent is category-based
+            #Filter by category/keyword ONLY when the intent is category-based
             kws = None
             if intent == "events_by_category_or_keyword":
                 kws = extract_category_or_keyword(message)
@@ -134,20 +134,20 @@ def chat():
                     if e.get("category", "").lower() in kws_lower
                 ]
 
-            # Step 4: Prepare reply
+            #Prepare reply
             if not matched:
                 return jsonify({"reply": "No events found for that request.", "events": []})
 
             titles = ", ".join([
                 f'{e["title"]} ({to_local_date(e["event_date"])})'
-                for e in matched[:10]
+                for e in matched[:10] #take top 10 event applied
             ])
             return jsonify({
                 "reply": f"I found these events: {titles}",
                 "events": matched[:10]
             })
 
-        # MY REGISTERED EVENTS
+        #my registered event
         if intent == "my_registered_events":
             regs = fetch_user_registered_events(user_id)
             if not regs:
@@ -157,9 +157,9 @@ def chat():
             ])
             return jsonify({"reply": f"You're registered for: {titles}", "events": regs[:5]})
 
-        # AI RANKED RECOMMENDATION
+        #ai ranked reommendation
         if intent == "recommend_events":
-            # Step 1: Date filter FIRST
+            #filter date first
             upcoming = [
                 e for e in events
                 if to_local_date(e.get("event_date")) is not None
@@ -170,7 +170,7 @@ def chat():
             if drange:
                 start, end = drange
 
-                # Convert from ISO strings if needed
+                #Convert from ISO strings if needed
                 if isinstance(start, str):
                     start_dt = datetime.fromisoformat(start).date()
                 else:
@@ -194,7 +194,7 @@ def chat():
             if not upcoming:
                 return jsonify({"reply": "There are no events in that period.", "events": []})
 
-            # Step 2: User preferences
+            #look into user interest
             user_categories = []
             regs = fetch_user_registered_events(user_id)
             interests = fetch_user_interests(user_id)
@@ -208,18 +208,18 @@ def chat():
 
             print("User preference categories:", user_categories)
 
-            # Step 3: AI Ranking (simple scoring)
+            #ai ranking
             ranked_events = []
             for e in upcoming:
                 score = 0
                 e_cat = str(e.get("category", "")).lower()
                 if e_cat in user_categories:
-                    score += 5
+                    score += 5 #if interest match
                 d_local = to_local_date(e.get("event_date"))
                 if d_local:
                     days_left = (d_local - today).days
                     if days_left <= 7:
-                        score += 1
+                        score += 1#if within the next 7 days
                 ranked_events.append((score, e))
 
             ranked_events.sort(key=lambda x: x[0], reverse=True)
@@ -233,13 +233,13 @@ def chat():
                 "events": final_list[:10]
             })
 
-        # HELP
+        #if user prompt help
         if intent == "help":
             return jsonify({
                 "reply": "You can ask about today's events, monthly events, event categories, your registered events, or get recommendations."
             })
 
-        # FALLBACK
+        #fallback
         upcoming = [
             e for e in events
             if to_local_date(e.get("event_date")) is not None
@@ -254,9 +254,9 @@ def chat():
         })
 
     except Exception as e:
-        print("🔥 ERROR:", e)
+        print("ERROR:", e)
         return jsonify({"reply": "Unexpected server error."}), 500
 
-# RUN SERVER
+#run server
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050, debug=False, use_reloader=False)
