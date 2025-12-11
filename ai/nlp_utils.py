@@ -3,20 +3,16 @@ from datetime import datetime, timedelta
 import re
 import random
 
-# -------------------------
-# Text normalization
-# -------------------------
+#Text normalization, remove xtra spaces and converts everything to lower case
 def normalize_text(text: str):
     return text.strip().lower()
 
-# -------------------------
-# Intent detection
-# -------------------------
+#Intent detection
 def detect_intent(text: str):
 
     t = normalize_text(text)
 
-    # --- Basic conversational intents ---
+    #Basic conversational intents
     greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
     confirmations = ["yes", "yeah", "yup", "sure", "correct"]
     negations = ["no", "nah", "nope"]
@@ -34,7 +30,7 @@ def detect_intent(text: str):
     if any(s in t for s in smalltalk):
         return "smalltalk"
 
-    # --- Event-related intents ---
+    #event related 
     if any(w in t for w in ["recommend", "suggest", "any events i should"]):
         return "recommend_events"
     if any(w in t for w in ["my events", "what i registered", "registered", "i joined", "i signed up"]):
@@ -46,16 +42,15 @@ def detect_intent(text: str):
     if any(w in t for w in ["class", "club", "academic", "sports", "technology", "music", "cultural", "food", "social", "workshop", "arts"]):
         return "events_by_category_or_keyword"
 
-    # --- Help / guidance ---
+    #help
     if any(w in t for w in ["help", "what can you do", "how to"]):
         return "help"
 
-    # --- Fallback ---
+    #fallback
     return "unknown"
 
-# -------------------------
+
 # Date parsing
-# -------------------------
 def parse_date_keyword(text: str):
     t = normalize_text(text)
     today = datetime.now().date()
@@ -92,7 +87,7 @@ def parse_date_keyword(text: str):
                 end = datetime(start.year, start.month + 1, 1).date() - timedelta(days=1)
         return start.isoformat(), end.isoformat()
 
-    # Month name handling
+    #Month name handling
     months = {
         "january": 1, "february": 2, "march": 3, "april": 4,
         "may": 5, "june": 6, "july": 7, "august": 8,
@@ -110,7 +105,7 @@ def parse_date_keyword(text: str):
                 end = datetime(year, month_num + 1, 1).date() - timedelta(days=1)
             return start.isoformat(), end.isoformat()
 
-    # Numeric date YYYY-MM-DD
+    #Numeric date YYYY-MM-DD
     m = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", t)
     if m:
         try:
@@ -119,7 +114,7 @@ def parse_date_keyword(text: str):
         except:
             pass
 
-    # Numeric slash date MM/DD or MM/DD/YYYY
+    #Numeric slash date MM/DD or MM/DD/YYYY
     m2 = re.search(r"(\d{1,2}/\d{1,2}(?:/\d{2,4})?)", t)
     if m2:
         try:
@@ -130,9 +125,7 @@ def parse_date_keyword(text: str):
 
     return None
 
-# -------------------------
 # Category / keyword extraction
-# -------------------------
 def extract_category_or_keyword(text: str):
     cats = ["academic", "social", "sports", "cultural", "technology", "arts", "music", "food", "workshop", "club", "class"]
     t = normalize_text(text)
@@ -145,9 +138,7 @@ def extract_category_or_keyword(text: str):
         found = candidates[:2]
     return found
 
-# -------------------------
 # Natural bot responses
-# -------------------------
 def get_bot_response(intent: str, text: str = ""):
     responses = {
         "greeting": [
