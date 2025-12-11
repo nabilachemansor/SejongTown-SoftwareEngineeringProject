@@ -98,20 +98,21 @@ The AI chatbot handles:
 
 Make sure backend is running first because AI calls the backend API.
 
-## Frontend
-To start frontend:
-'''
+🖥 Frontend
+
+Start the frontend:
+
 npm start
-'''
 
-The UI will load and display:
 
-- Events list
+The UI will load and include:
 
-- Event registration
+Event list
 
-- User dashboard
+Event registration
 
-- AI chatbot interface
+User dashboard
+
+AI chatbot interface
 
 
