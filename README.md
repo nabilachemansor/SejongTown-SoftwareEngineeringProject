@@ -7,11 +7,11 @@ The system allows students to browse events, register, view their joined events,
 
 This project consists of three main components:
 
-- ## Frontend (HTML, CSS) – User interface
+- Frontend (HTML, CSS) – User interface
 
-- ## Backend (Node.js + PostgreSQL) – Handles events, users, database
+- Backend (Node.js + PostgreSQL) – Handles events, users, database
 
-- ## AI Chatbot (Python + Flask) – NLP-based event helper bot
+- AI Chatbot (Python + Flask) – NLP-based event helper bot
 
 ---
 
