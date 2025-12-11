@@ -1,17 +1,117 @@
-# SejongTown-SoftwareEngineeringProject
+# SejongTown – Software Engineering Project
 
-# frontend/scripts.js -> make changes in chatbot part, but still donno what it will looks like, so just change it anywhere u want sksksk
+SejongTown is an event management platform designed for university students.
+The system allows students to browse events, register, view their joined events, and interact with an AI chatbot that recommends upcoming activities based on their interests and event history.
 
-# backend/interests.js -> added so that recommended event based on registered events and user interests, not sure if its correct or not tho...
+---
 
-# backend/server.js -> add import interests and app.use for interests
+This project consists of three main components:
 
-# to test ai locally -> uncomment dummy data lam app.py -> cd ai -> pip install -r requirements.txt -> python app.py (make sure it show port is running) -> open new shell, cd ai, python test.app
+- Frontend (HTML, CSS) – User interface
 
-!! node_modules will not clone together because the file is too big, so make sure your package-lock.json and package.json is same with mine one (very very long one), then  in your terminal, type "npm install" (no need in backend folder, just inside SejongTown-SoftwareEngineeringProject is okay). After that, npm will read your package.json and package-lock.json. It will rebuild the node_modules folder exactly as I have one.
+- Backend (Node.js + PostgreSQL) – Handles events, users, database
 
-Before run the code:
-1. Must make sure you already have node_modules folder!!
-2. Connect backend/database: Type "node backend\server.js" or "node server.js" in terminal 1
-3. Connect AI: Type "python app.py" in terminal 2
-4. If database didnt have any events, the main page will be empty, so need to create event first and save in the database, then only the main page will have event shown up.
+- AI Chatbot (Python + Flask) – NLP-based event helper bot
+
+---
+
+## Features
+
+- View and explore campus events  
+- Personalized event recommendations (date, category, keyword, etc.)  
+- AI chatbot with NLP intent detection  
+- User login system  
+- Student can create and manage events  
+- PostgreSQL-backed data storage
+
+---
+
+## Installation Guide
+
+1. Clone the repository
+   '''
+   git clone <repo-url>
+   cd SejongTown-SoftwareEngineeringProject
+   '''
+   
+2. Install frontend dependencies
+   > <sub>node_module</sub> is not included because the folder too large
+   Run this inside the main project folder:
+   '''
+   npm install
+   '''
+   This will automatically recreate <sub>node_module</sub> based on:
+   - <sub>package.json</sub>
+   
+   - <sub>package-lock.json</sub>
+   
+3. Install ai dependencies
+   Run:
+   '''
+   cd ai
+   pip install -r requirements.txt
+   '''
+
+## Backend setup
+Start the backend server
+
+In Terminal 1:
+'''
+node backend/server.js
+'''
+
+or
+
+'''
+server.js
+'''
+
+Requirements
+- PostgreSQL database must be running
+
+- Environment variables must match your DB settings
+
+- Make sure your DB has events or the main page will appear empty
+
+## AI chatbot setup
+Start the AI server
+
+In Terminal 2:
+'''
+cd ai
+python app.py
+'''
+
+The AI chatbot handles:
+
+- Intent detection
+
+- Date keyword parsing
+
+- Monthly event filtering
+
+- Category extraction
+
+- Recommendations
+
+- User registered events lookup
+
+Make sure backend is running first because AI calls the backend API.
+
+## Frontend
+To start frontend:
+'''
+npm start
+'''
+
+The UI will load and display:
+
+- Events list
+
+- Event registration
+
+- User dashboard
+
+- AI chatbot interface
+
+
