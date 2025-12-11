@@ -7,11 +7,11 @@ The system allows students to browse events, register, view their joined events,
 
 This project consists of three main components:
 
-- Frontend (HTML, CSS) – User interface
+- ## Frontend (HTML, CSS) – User interface
 
-- Backend (Node.js + PostgreSQL) – Handles events, users, database
+- ## Backend (Node.js + PostgreSQL) – Handles events, users, database
 
-- AI Chatbot (Python + Flask) – NLP-based event helper bot
+- ## AI Chatbot (Python + Flask) – NLP-based event helper bot
 
 ---
 
@@ -29,44 +29,50 @@ This project consists of three main components:
 ## Installation Guide
 
 1. Clone the repository
-   '''
+   ```bash
    git clone <repo-url>
    cd SejongTown-SoftwareEngineeringProject
-   '''
+   
    
 2. Install frontend dependencies
    > <sub>node_module</sub> is not included because the folder too large
+   
    Run this inside the main project folder:
-   '''
+   
+   ```bash
    npm install
-   '''
+   ```
+
    This will automatically recreate <sub>node_module</sub> based on:
+   
    - <sub>package.json</sub>
    
    - <sub>package-lock.json</sub>
    
 3. Install ai dependencies
    Run:
-   '''
+   ```bash
    cd ai
    pip install -r requirements.txt
-   '''
+   ```
+---
 
 ## Backend setup
 Start the backend server
 
 In Terminal 1:
-'''
+```bash
 node backend/server.js
-'''
+```
 
 or
 
-'''
+```bash
 server.js
-'''
+```
 
 Requirements
+
 - PostgreSQL database must be running
 
 - Environment variables must match your DB settings
@@ -77,10 +83,10 @@ Requirements
 Start the AI server
 
 In Terminal 2:
-'''
+```bash
 cd ai
 python app.py
-'''
+```
 
 The AI chatbot handles:
 
@@ -102,17 +108,18 @@ Make sure backend is running first because AI calls the backend API.
 
 Start the frontend:
 
+```bash
 npm start
-
+```
 
 The UI will load and include:
 
-Event list
+- Event list
 
-Event registration
+- Event registration
 
-User dashboard
+- User dashboard
 
-AI chatbot interface
+- AI chatbot interface
 
 
