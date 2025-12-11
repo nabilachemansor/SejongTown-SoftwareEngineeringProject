@@ -19,7 +19,8 @@ This project consists of three main components:
 
 - View and explore campus events  
 - Personalized event recommendations (date, category, keyword, etc.)  
-- AI chatbot with NLP intent detection  
+- AI chatbot with NLP intent detection
+- User verification system
 - User login system  
 - Student can create and manage events  
 - PostgreSQL-backed data storage
