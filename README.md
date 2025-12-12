@@ -89,7 +89,7 @@ cd ai
 python app.py
 ```
 
-The AI chatbot handles:
+## The AI chatbot handles:
 
 - Intent detection
 
@@ -105,7 +105,7 @@ The AI chatbot handles:
 
 Make sure backend is running first because AI calls the backend API.
 
-🖥 Frontend
+## Frontend
 
 Start the frontend:
 
